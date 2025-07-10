@@ -6,9 +6,6 @@ export function middleware(request: NextRequest) {
   
   // Extract subdomain from hostname
   const { clientFolder, version } = parseSubdomain(hostname);
-  
-  // Debug logging
-  console.log('🔍 Middleware Debug:', { hostname, clientFolder, version });
 
   // If we have a client folder, add context to headers
   if (clientFolder) {
@@ -39,8 +36,6 @@ function parseSubdomain(hostname: string): { clientFolder: string | null; versio
   
   // Split hostname into parts
   const parts = host.split('.');
-  
-  console.log('🔧 Parse Debug:', { hostname, host, parts });
   
   // Handle localhost development
   if (host.includes('.localhost')) {

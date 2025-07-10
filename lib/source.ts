@@ -7,6 +7,48 @@ export const source = loader({
   source: docs.toFumadocsSource(),
 });
 
+// Export function to get available versions for a client
+export function getClientVersions(clientFolder: string): string[] {
+  if (!clientFolder) return [];
+  
+  // Get all pages and find version folders for this client by checking the source file paths
+  const allPages = source.getPages();
+  const versions = new Set<string>();
+  
+  console.log(`🔍 Getting versions for client: ${clientFolder}`);
+  
+  allPages.forEach(page => {
+    // Check the page's file property or url to find version folders
+    // The page.url will be like /docs/client-folder/version/page-name or /docs/client-folder/version
+    if (page.url.includes(`/${clientFolder}/`)) {
+      // Extract the part after /docs/client-folder/
+      const clientFolderIndex = page.url.indexOf(`/${clientFolder}/`);
+      const pathAfterClient = page.url.substring(clientFolderIndex + `/${clientFolder}/`.length);
+      
+      // Get the first segment which should be the version (v1, v2, etc.)
+      const versionPart = pathAfterClient.split('/')[0];
+      
+      console.log(`📄 Page: ${page.url} -> pathAfterClient: "${pathAfterClient}" -> versionPart: "${versionPart}"`);
+      
+      if (versionPart && versionPart.startsWith('v')) {
+        versions.add(versionPart);
+        console.log(`✅ Added version: ${versionPart}`);
+      }
+    }
+  });
+  
+  const sortedVersions = Array.from(versions).sort((a, b) => {
+    const aNum = parseInt(a.substring(1));
+    const bNum = parseInt(b.substring(1));
+    return aNum - bNum;
+  });
+  
+  console.log(`📊 Final versions for ${clientFolder}:`, sortedVersions);
+  
+  // Sort versions (v1, v2, etc.)
+  return sortedVersions;
+}
+
 // Export function to get client-specific pages with version support
 export function getClientPages(clientFolder?: string, version?: string) {
   const allPages = source.getPages();
