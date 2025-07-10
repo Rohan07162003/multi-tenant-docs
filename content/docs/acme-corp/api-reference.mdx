@@ -1,0 +1,92 @@
+---
+title: API Reference
+description: Acme Corp's manufacturing system API documentation
+---
+
+# API Reference
+
+The Acme Corp Manufacturing API provides programmatic access to production data, inventory levels, and quality metrics.
+
+## Base URL
+```
+https://api.acmecorp.com/v1
+```
+
+## Authentication
+All API requests require an API key in the header:
+```
+Authorization: Bearer YOUR_API_KEY
+```
+
+## Endpoints
+
+### Production Data
+
+#### Get Production Status
+```http
+GET /production/status
+```
+
+Returns current status of all production lines.
+
+**Response:**
+```json
+{
+  "lines": [
+    {
+      "id": "A1",
+      "name": "Consumer Products",
+      "status": "running",
+      "current_output": 8500,
+      "target_output": 10000,
+      "efficiency": 85.2
+    }
+  ]
+}
+```
+
+#### Get Production History
+```http
+GET /production/history?line={line_id}&period={period}
+```
+
+**Parameters:**
+- `line`: Production line ID (A1, A2, A3)
+- `period`: Time period (day, week, month)
+
+### Inventory Management
+
+#### Check Inventory Levels
+```http
+GET /inventory/levels?sku={sku}
+```
+
+Returns current inventory levels for specified SKU.
+
+#### Update Inventory
+```http
+POST /inventory/update
+```
+
+**Request Body:**
+```json
+{
+  "sku": "ACME-001",
+  "quantity": 100,
+  "location": "CHI-001",
+  "transaction_type": "receipt"
+}
+```
+
+### Quality Metrics
+
+#### Get Quality Dashboard
+```http
+GET /quality/dashboard
+```
+
+Returns current quality metrics across all production lines.
+
+## Rate Limits
+- 1000 requests per hour per API key
+- Burst limit: 100 requests per minute 

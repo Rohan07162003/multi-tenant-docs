@@ -1,0 +1,125 @@
+---
+title: Development Standards
+description: Coding standards and best practices for TechFlow Solutions projects
+---
+
+# Development Standards
+
+These standards ensure consistency, maintainability, and quality across all TechFlow Solutions projects.
+
+## Code Style Guidelines
+
+### TypeScript/JavaScript
+- Use TypeScript for all new projects
+- Follow ESLint and Prettier configurations
+- Use meaningful variable and function names
+- Prefer `const` over `let`, avoid `var`
+- Use async/await over Promise chains
+
+```typescript
+// Good
+const getUserProfile = async (userId: string): Promise<UserProfile> => {
+  const response = await api.get(`/users/${userId}`);
+  return response.data;
+};
+
+// Avoid
+function getUserProfile(userId) {
+  return api.get('/users/' + userId).then(response => {
+    return response.data;
+  });
+}
+```
+
+### React Components
+- Use functional components with hooks
+- Keep components small and focused (< 200 lines)
+- Use TypeScript interfaces for props
+- Extract custom hooks for reusable logic
+
+```tsx
+interface UserCardProps {
+  user: User;
+  onEdit: (user: User) => void;
+}
+
+const UserCard: React.FC<UserCardProps> = ({ user, onEdit }) => {
+  const { isLoading, error } = useUserValidation(user.id);
+  
+  return (
+    <div className="user-card">
+      {/* Component content */}
+    </div>
+  );
+};
+```
+
+## File Organization
+
+### Project Structure
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Page components (Next.js)
+├── hooks/         # Custom React hooks  
+├── utils/         # Utility functions
+├── types/         # TypeScript type definitions
+├── api/           # API layer and services
+├── styles/        # Global styles and themes
+└── tests/         # Test files
+```
+
+### Naming Conventions
+- **Files**: PascalCase for components, camelCase for utilities
+- **Components**: PascalCase (e.g., `UserProfile.tsx`)
+- **Hooks**: camelCase starting with "use" (e.g., `useAuth.ts`)
+- **Constants**: UPPER_SNAKE_CASE
+- **Types/Interfaces**: PascalCase with descriptive names
+
+## Testing Requirements
+
+### Unit Tests
+- Minimum 80% code coverage
+- Test all public functions and components
+- Use Jest and React Testing Library
+- Mock external dependencies
+
+### Integration Tests
+- Test API endpoints with actual requests
+- Test critical user flows
+- Use test databases for data operations
+
+### Testing Best Practices
+```typescript
+// Good test structure
+describe('UserService', () => {
+  describe('createUser', () => {
+    it('should create user with valid data', async () => {
+      // Arrange
+      const userData = { name: 'John Doe', email: 'john@example.com' };
+      
+      // Act  
+      const result = await userService.createUser(userData);
+      
+      // Assert
+      expect(result).toHaveProperty('id');
+      expect(result.name).toBe(userData.name);
+    });
+  });
+});
+```
+
+## Documentation Standards
+
+### Code Comments
+- Use JSDoc for functions and classes
+- Explain "why" not "what"
+- Document complex business logic
+
+### README Requirements
+Every project must include:
+- Project overview and purpose
+- Setup and installation instructions
+- Environment variables documentation
+- API documentation or links
+- Deployment instructions 

@@ -1,0 +1,241 @@
+---
+title: Deployment Procedures
+description: Step-by-step deployment processes and CI/CD workflows for TechFlow Solutions
+---
+
+# Deployment Procedures
+
+This guide outlines the deployment processes and continuous integration/continuous deployment (CI/CD) workflows used at TechFlow Solutions.
+
+## Environment Strategy
+
+### Environment Tiers
+1. **Development** - Feature development and initial testing
+2. **Staging** - Integration testing and client previews  
+3. **Production** - Live application serving real users
+
+### Environment Configuration
+```yaml
+# .env.development
+DATABASE_URL=postgresql://localhost:5432/app_dev
+API_URL=http://localhost:3000/api
+NEXT_PUBLIC_ENV=development
+
+# .env.staging  
+DATABASE_URL=postgresql://staging-db:5432/app_staging
+API_URL=https://api-staging.client.com
+NEXT_PUBLIC_ENV=staging
+
+# .env.production
+DATABASE_URL=postgresql://prod-db:5432/app_prod
+API_URL=https://api.client.com
+NEXT_PUBLIC_ENV=production
+```
+
+## CI/CD Pipeline
+
+### GitHub Actions Workflow
+```yaml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+
+  deploy-staging:
+    needs: test
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Staging
+        run: |
+          # Deploy to staging environment
+          echo "Deploying to staging..."
+
+  deploy-production:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Production
+        run: |
+          # Deploy to production environment
+          echo "Deploying to production..."
+```
+
+### Deployment Checklist
+
+#### Pre-Deployment
+- [ ] All tests passing
+- [ ] Code review completed
+- [ ] Database migrations tested
+- [ ] Environment variables updated
+- [ ] Monitoring alerts configured
+
+#### During Deployment
+- [ ] Create deployment tag
+- [ ] Run database migrations
+- [ ] Deploy application code
+- [ ] Verify health checks
+- [ ] Test critical user flows
+
+#### Post-Deployment
+- [ ] Monitor error rates
+- [ ] Check performance metrics
+- [ ] Verify new features working
+- [ ] Update deployment documentation
+- [ ] Notify stakeholders
+
+## Database Migrations
+
+### Migration Strategy
+```typescript
+// Example migration file: 2024-01-15-add-user-preferences.ts
+export async function up(knex: Knex): Promise<void> {
+  await knex.schema.createTable('user_preferences', (table) => {
+    table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
+    table.uuid('user_id').references('id').inTable('users').onDelete('CASCADE');
+    table.json('preferences').notNullable();
+    table.timestamps(true, true);
+  });
+}
+
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.dropTable('user_preferences');
+}
+```
+
+### Migration Best Practices
+- Always include rollback migrations
+- Test migrations on staging first
+- Make migrations backward compatible when possible
+- Use transactions for complex migrations
+
+## Docker Deployment
+
+### Dockerfile
+```dockerfile
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+
+FROM node:18-alpine AS runner
+WORKDIR /app
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY . .
+
+USER nextjs
+EXPOSE 3000
+ENV PORT 3000
+
+CMD ["npm", "start"]
+```
+
+### Docker Compose for Local Development
+```yaml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@db:5432/app_dev
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=app_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+```
+
+## AWS Deployment
+
+### ECS Task Definition
+```json
+{
+  "family": "techflow-app",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::account:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "app",
+      "image": "techflow/app:latest",
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/techflow-app",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
+```
+
+## Rollback Procedures
+
+### Quick Rollback Steps
+1. **Identify the issue**: Check monitoring and logs
+2. **Stop traffic**: Update load balancer if needed  
+3. **Revert code**: Deploy previous stable version
+4. **Rollback database**: Apply down migrations if necessary
+5. **Verify system**: Confirm application is working
+6. **Incident report**: Document the issue and resolution
+
+### Emergency Contacts
+- **DevOps Team**: +1-555-DEVOPS (24/7)
+- **Technical Lead**: Sarah Chen (+1-555-TECH-LEAD)
+- **On-Call Engineer**: Rotation schedule in PagerDuty 

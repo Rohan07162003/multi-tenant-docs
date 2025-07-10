@@ -1,0 +1,9 @@
+{
+  "title": "TechFlow Solutions",
+  "pages": [
+    "index",
+    "development-standards",
+    "architecture-guidelines", 
+    "deployment-procedures"
+  ]
+} 

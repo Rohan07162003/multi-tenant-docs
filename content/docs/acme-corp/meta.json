@@ -1,0 +1,10 @@
+{
+  "title": "Acme Corp",
+  "pages": [
+    "index",
+    "production-systems",
+    "quality-control",
+    "inventory-management",
+    "api-reference"
+  ]
+} 

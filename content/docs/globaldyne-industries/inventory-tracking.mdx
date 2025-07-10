@@ -1,0 +1,159 @@
+---
+title: Inventory Tracking
+description: Real-time inventory management and tracking systems for GlobalDyne Industries
+---
+
+# Inventory Tracking
+
+GlobalDyne Industries employs advanced inventory tracking technologies to provide real-time visibility across the entire supply chain, from supplier facilities to customer delivery.
+
+## Tracking Technologies
+
+### RFID Technology
+- **Ultra-High Frequency (UHF)**: Long-range reading for pallets and cases
+- **High Frequency (HF)**: Item-level tracking for high-value products  
+- **Passive Tags**: Cost-effective for most inventory items
+- **Active Tags**: GPS-enabled for shipment tracking
+
+### Barcode Systems
+- **Linear Barcodes**: Standard UPC/EAN for retail products
+- **2D Barcodes**: Data Matrix and QR codes for complex data
+- **GS1 Standards**: Globally recognized identification standards
+- **Batch and Lot Tracking**: Expiration date and quality control
+
+### IoT Sensors
+- **Temperature Monitoring**: Cold chain integrity for pharmaceuticals
+- **Humidity Sensors**: Environmental control for sensitive goods
+- **Shock Sensors**: Impact detection for fragile items
+- **GPS Trackers**: Real-time location for high-value shipments
+
+## Inventory Management System
+
+### Real-Time Visibility Dashboard
+```
+┌─────────────────────────────────────────────────┐
+│                 Global Inventory                │
+├─────────────────────────────────────────────────┤
+│  Total SKUs: 2.5M    │   Total Value: $2.8B    │
+│  Locations: 125      │   Transactions: 50K/day │
+├─────────────────────────────────────────────────┤
+│  Accuracy: 99.5%     │   Cycle Count: 98.2%    │
+│  Shrinkage: 0.08%    │   Obsolete: 0.15%       │
+└─────────────────────────────────────────────────┘
+```
+
+### Inventory Categories
+
+#### By Velocity
+- **Fast Movers**: >100 transactions/month (15% of SKUs, 60% of volume)
+- **Medium Movers**: 20-100 transactions/month (25% of SKUs, 30% of volume)
+- **Slow Movers**: 5-20 transactions/month (35% of SKUs, 8% of volume)
+- **Dead Stock**: < 5 transactions/month (25% of SKUs, 2% of volume)
+
+#### By Value Classification
+- **Class A**: High-value items (20% of SKUs, 80% of value)
+- **Class B**: Medium-value items (30% of SKUs, 15% of value)
+- **Class C**: Low-value items (50% of SKUs, 5% of value)
+
+#### Special Handling Categories
+- **Hazardous Materials**: Special storage and handling requirements
+- **Temperature-Controlled**: Cold chain and climate-controlled items
+- **High Security**: Valuable items requiring additional protection
+- **Serialized Items**: Individual unit tracking for warranties
+
+## Tracking Workflows
+
+### Inbound Tracking
+1. **ASN (Advance Ship Notice)**: Electronic notification from supplier
+2. **Receiving Scan**: Barcode/RFID capture at dock door
+3. **Quality Check**: Inspection and condition verification
+4. **Put-Away**: Location assignment and system update
+5. **Inventory Update**: Real-time availability for allocation
+
+### Inventory Movements
+- **Transfers**: Between locations within same facility
+- **Relocations**: Moves to optimize pick efficiency  
+- **Adjustments**: Cycle count corrections and write-offs
+- **Reservations**: Allocation for pending orders
+- **Holds**: Quality or compliance-related inventory blocks
+
+### Outbound Tracking
+1. **Pick Assignment**: Wave planning and pick list generation
+2. **Pick Confirmation**: Scan verification during picking
+3. **Pack Verification**: Item and quantity confirmation
+4. **Ship Scan**: Final scan before carrier pickup
+5. **Delivery Confirmation**: Proof of delivery capture
+
+## Cycle Counting Program
+
+### Count Frequency by Classification
+- **Class A Items**: Weekly counts (52 times per year)
+- **Class B Items**: Monthly counts (12 times per year)
+- **Class C Items**: Quarterly counts (4 times per year)
+- **Special Items**: Daily counts for high-risk inventory
+
+### Count Methodologies
+- **Perpetual Counting**: Continuous cycle counts throughout year
+- **Random Sampling**: Statistical sampling for large populations
+- **Exception-Based**: Counts triggered by system discrepancies
+- **Physical Inventory**: Annual wall-to-wall count for validation
+
+### Count Accuracy Targets
+- **Overall Accuracy**: >99.5%
+- **A-Item Accuracy**: >99.9%
+- **B-Item Accuracy**: >99.7%
+- **C-Item Accuracy**: >99.0%
+
+## Demand Forecasting
+
+### Forecasting Models
+- **Time Series Analysis**: Historical pattern recognition
+- **Seasonal Adjustment**: Holiday and seasonal demand patterns
+- **Trend Analysis**: Growth and decline pattern identification
+- **Collaborative Planning**: Customer forecast integration
+
+### Forecast Accuracy Metrics
+- **Mean Absolute Percentage Error (MAPE)**: < 15% target
+- **Bias**: Tracking over/under forecasting trends
+- **Forecast Value Added (FVA)**: Improvement over statistical baseline
+
+### Replenishment Triggers
+- **Reorder Points**: Minimum stock levels for automatic replenishment
+- **Safety Stock**: Buffer inventory for demand variability
+- **Lead Time**: Supplier delivery time considerations
+- **Economic Order Quantity (EOQ)**: Optimal order sizing
+
+## Exception Management
+
+### System Alerts
+- **Low Stock Alerts**: Inventory below reorder point
+- **Overstock Alerts**: Inventory exceeding maximum levels
+- **Aging Inventory**: Slow-moving stock alerts
+- **Discrepancy Alerts**: Count variance notifications
+
+### Exception Resolution Process
+1. **Alert Generation**: Automated system notification
+2. **Investigation**: Root cause analysis
+3. **Corrective Action**: Process or system adjustment
+4. **Verification**: Confirmation of resolution
+5. **Documentation**: Case closure and lessons learned
+
+## Reporting and Analytics
+
+### Standard Reports
+- **Daily Inventory Position**: Current stock levels by location
+- **Weekly Velocity Report**: Item movement analysis
+- **Monthly Accuracy Report**: Cycle count performance
+- **Quarterly Obsolescence Report**: Slow-moving inventory review
+
+### Advanced Analytics
+- **Predictive Analytics**: Demand forecasting and trend analysis
+- **Optimization Models**: Safety stock and reorder point optimization
+- **Performance Dashboards**: Real-time KPI monitoring
+- **Executive Scorecards**: High-level performance summaries
+
+### Data Integration
+- **ERP Systems**: SAP, Oracle integration
+- **Customer Systems**: EDI and API connectivity
+- **Supplier Portals**: Vendor managed inventory (VMI)
+- **Business Intelligence**: Data warehouse and analytics tools 
