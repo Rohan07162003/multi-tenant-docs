@@ -15,8 +15,6 @@ export function getClientVersions(clientFolder: string): string[] {
   const allPages = source.getPages();
   const versions = new Set<string>();
   
-  console.log(`🔍 Getting versions for client: ${clientFolder}`);
-  
   allPages.forEach(page => {
     // Check the page's file property or url to find version folders
     // The page.url will be like /docs/client-folder/version/page-name or /docs/client-folder/version
@@ -28,11 +26,8 @@ export function getClientVersions(clientFolder: string): string[] {
       // Get the first segment which should be the version (v1, v2, etc.)
       const versionPart = pathAfterClient.split('/')[0];
       
-      console.log(`📄 Page: ${page.url} -> pathAfterClient: "${pathAfterClient}" -> versionPart: "${versionPart}"`);
-      
       if (versionPart && versionPart.startsWith('v')) {
         versions.add(versionPart);
-        console.log(`✅ Added version: ${versionPart}`);
       }
     }
   });
@@ -42,9 +37,7 @@ export function getClientVersions(clientFolder: string): string[] {
     const bNum = parseInt(b.substring(1));
     return aNum - bNum;
   });
-  
-  console.log(`📊 Final versions for ${clientFolder}:`, sortedVersions);
-  
+
   // Sort versions (v1, v2, etc.)
   return sortedVersions;
 }

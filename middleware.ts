@@ -40,30 +40,34 @@ function parseSubdomain(hostname: string): { clientFolder: string | null; versio
   // Handle localhost development
   if (host.includes('.localhost')) {
     // Examples: 
-    // acme-corp.localhost -> ['acme-corp', 'localhost']
-    // acme-corp.v1.localhost -> ['acme-corp', 'v1', 'localhost']
+    // acme-corp.docs.localhost -> ['acme-corp', 'docs', 'localhost']
+    // acme-corp.v1.docs.localhost -> ['acme-corp', 'v1', 'docs', 'localhost']
     
-    if (parts.length === 3) {
-      // Format: client.version.localhost (e.g., acme-corp.v1.localhost)
+    if (parts.length === 4) {
+      // Format: client.version.docs.localhost (e.g., acme-corp.v1.docs.localhost)
       const clientFolder = parts[0];
       const version = parts[1];
       return { clientFolder, version };
-    } else if (parts.length === 2) {
-      // Format: client.localhost (e.g., acme-corp.localhost) - no version specified
+    } else if (parts.length === 3) {
+      // Format: client.docs.localhost (e.g., acme-corp.docs.localhost) - no version specified
       const clientFolder = parts[0];
       return { clientFolder, version: null };
     }
   } else {
     // Production domain handling
-    if (parts.length >= 3) {
-      // Check if second part is a version (starts with 'v')
-      if (parts[1].startsWith('v')) {
-        // Format: client.v1.domain.com
+    // Examples:
+    // acme-corp.docs.domain.com -> ['acme-corp', 'docs', 'domain', 'com']
+    // acme-corp.v1.docs.domain.com -> ['acme-corp', 'v1', 'docs', 'domain', 'com']
+    
+    if (parts.length >= 4) {
+      // Check if second part is a version (starts with 'v') and third part is 'docs'
+      if (parts[1].startsWith('v') && parts[2] === 'docs') {
+        // Format: client.version.docs.domain.com
         const clientFolder = parts[0];
         const version = parts[1];
         return { clientFolder, version };
-      } else {
-        // Format: client.domain.com - no version specified
+      } else if (parts[1] === 'docs') {
+        // Format: client.docs.domain.com - no version specified
         const clientFolder = parts[0];
         return { clientFolder, version: null };
       }

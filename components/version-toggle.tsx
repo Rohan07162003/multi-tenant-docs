@@ -31,20 +31,22 @@ export function VersionToggle({ clientFolder, currentVersion, availableVersions 
       // Local development
       if (version === 'v2') {
         // Latest version - no version in subdomain
-        newHostname = `${clientFolder}.localhost`;
+        newHostname = `${clientFolder}.docs.localhost`;
       } else {
         // Specific version
-        newHostname = `${clientFolder}.${version}.localhost`;
+        newHostname = `${clientFolder}.${version}.docs.localhost`;
       }
     } else {
       // Production domain
       const parts = hostname.split('.');
+      const domainSuffix = parts.slice(-2).join('.'); // domain.com
+      
       if (version === 'v2') {
         // Latest version - no version in subdomain
-        newHostname = `${clientFolder}.${parts.slice(-2).join('.')}`;
+        newHostname = `${clientFolder}.docs.${domainSuffix}`;
       } else {
         // Specific version
-        newHostname = `${clientFolder}.${version}.${parts.slice(-2).join('.')}`;
+        newHostname = `${clientFolder}.${version}.docs.${domainSuffix}`;
       }
     }
     
