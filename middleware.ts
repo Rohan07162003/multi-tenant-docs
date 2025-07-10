@@ -5,19 +5,26 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
   
   // Extract subdomain from hostname
-  const subdomain = getSubdomain(hostname);
+  const { clientFolder, version } = parseSubdomain(hostname);
   
-  // If we have a subdomain, use it as the client folder name
-  if (subdomain) {
-    // Add client context to headers for downstream components
+  // Debug logging
+  console.log('🔍 Middleware Debug:', { hostname, clientFolder, version });
+
+  // If we have a client folder, add context to headers
+  if (clientFolder) {
     const response = NextResponse.next({
       request: {
         headers: new Headers(request.headers),
       },
     });
     
-    response.headers.set('x-client-subdomain', subdomain);
-    response.headers.set('x-client-folder', subdomain);
+    response.headers.set('x-client-subdomain', clientFolder);
+    response.headers.set('x-client-folder', clientFolder);
+    
+    // Only set version header if version was explicitly found
+    if (version) {
+      response.headers.set('x-client-version', version);
+    }
     
     return response;
   }
@@ -26,28 +33,52 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-function getSubdomain(hostname: string): string | null {
+function parseSubdomain(hostname: string): { clientFolder: string | null; version: string | null } {
+  // Remove port if present
+  const host = hostname.split(':')[0];
+  
+  // Split hostname into parts
+  const parts = host.split('.');
+  
+  console.log('🔧 Parse Debug:', { hostname, host, parts });
+  
   // Handle localhost development
-  if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
-    // For local development, you can test with subdomains like: acme-corp.localhost:3000
-    const parts = hostname.split('.');
-    if (parts.length > 1 && parts[0] !== 'localhost') {
-      return parts[0];
+  if (host.includes('.localhost')) {
+    // Examples: 
+    // acme-corp.localhost -> ['acme-corp', 'localhost']
+    // acme-corp.v1.localhost -> ['acme-corp', 'v1', 'localhost']
+    
+    if (parts.length === 3) {
+      // Format: client.version.localhost (e.g., acme-corp.v1.localhost)
+      const clientFolder = parts[0];
+      const version = parts[1];
+      return { clientFolder, version };
+    } else if (parts.length === 2) {
+      // Format: client.localhost (e.g., acme-corp.localhost) - no version specified
+      const clientFolder = parts[0];
+      return { clientFolder, version: null };
     }
-    return null;
+  } else {
+    // Production domain handling
+    if (parts.length >= 3) {
+      // Check if second part is a version (starts with 'v')
+      if (parts[1].startsWith('v')) {
+        // Format: client.v1.domain.com
+        const clientFolder = parts[0];
+        const version = parts[1];
+        return { clientFolder, version };
+      } else {
+        // Format: client.domain.com - no version specified
+        const clientFolder = parts[0];
+        return { clientFolder, version: null };
+      }
+    }
   }
   
-  // For production domains like acme-corp.yourdomain.com
-  const parts = hostname.split('.');
-  if (parts.length > 2) {
-    return parts[0];
-  }
-  
-  return null;
+  return { clientFolder: null, version: null };
 }
 
 export const config = {
-  // Match all paths except static files and API routes
   matcher: [
     /*
      * Match all request paths except for the ones starting with:

@@ -1,0 +1,74 @@
+---
+title: Development Standards v1.0
+description: Basic coding guidelines and practices for TechFlow Solutions v1.0
+---
+
+# Development Standards v1.0
+
+## Overview
+
+This document outlines the basic development standards and coding practices used in TechFlow Solutions' v1.0 development process.
+
+## JavaScript Guidelines
+
+### ES6 Features
+- Use `const` and `let` instead of `var`
+- Arrow functions for callbacks
+- Template literals for string interpolation
+- Destructuring for object/array extraction
+
+### Code Style
+- 2-space indentation
+- Semicolons required
+- Single quotes for strings
+- camelCase for variables and functions
+
+## React Development (v1.0)
+
+### Component Structure
+```javascript
+import React, { Component } from 'react';
+
+class MyComponent extends Component {
+  render() {
+    return (
+      <div>
+        <h1>Hello World</h1>
+      </div>
+    );
+  }
+}
+
+export default MyComponent;
+```
+
+### State Management
+- Local component state using `this.setState()`
+- Basic props passing
+- Simple event handling
+
+## File Organization
+
+```
+src/
+├── components/
+├── pages/
+├── utils/
+└── styles/
+```
+
+## Version Control
+
+### Git Workflow
+- Feature branches from `develop`
+- Pull requests for code review
+- Manual testing before merge
+
+### Commit Messages
+- Use present tense
+- Keep first line under 50 characters
+- Include ticket number if applicable
+
+## Legacy Notes
+
+This v1.0 standard represents our foundational approach. The v2.0 standards include TypeScript, advanced React patterns, automated testing, and comprehensive linting rules. 

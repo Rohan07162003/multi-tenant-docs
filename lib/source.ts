@@ -7,91 +7,117 @@ export const source = loader({
   source: docs.toFumadocsSource(),
 });
 
-// Export function to get client-specific pages
-export function getClientPages(clientFolder?: string) {
+// Export function to get client-specific pages with version support
+export function getClientPages(clientFolder?: string, version?: string) {
   const allPages = source.getPages();
   
   if (!clientFolder) {
     return allPages;
   }
   
-  // Filter pages to only include those from the specific client folder
+  // Default to latest version if no version provided
+  const versionPath = version || 'v2';
+  const fullPath = `/${clientFolder}/${versionPath}`;
+  
+  // Filter pages to only include those from the specific client folder and version
   return allPages.filter(page => {
-    return page.url.startsWith(`/${clientFolder}/`);
+    return page.url.startsWith(`${fullPath}/`);
   }).map(page => ({
     ...page,
-    // Remove client folder from URL so /acme-corp/production-systems becomes /production-systems
-    url: page.url.replace(`/${clientFolder}`, '') || '/',
+    // Remove client folder and version from URL so /acme-corp/v1/production-systems becomes /production-systems
+    url: page.url.replace(`${fullPath}`, '') || '/',
   }));
 }
 
-// Export function to get client-specific page
-export function getClientPage(slug?: string[], clientFolder?: string) {
+// Export function to get client-specific page with version support
+export function getClientPage(slug: string[], clientFolder?: string, version?: string) {
+  const allPages = source.getPages();
+  
   if (!clientFolder) {
+    // For main domain, use default behavior
     return source.getPage(slug);
   }
   
-  // Convert slug to include client folder for finding the actual page
-  const clientSlug = slug ? [clientFolder, ...slug] : [clientFolder];
-  return source.getPage(clientSlug);
-}
-
-// Export function to get client-specific page tree
-export function getClientPageTree(clientFolder?: string) {
-  const fullTree = source.pageTree;
-  console.log({clientFolder})
-  console.log(JSON.stringify(fullTree, null, 2))
-  if (!clientFolder) {
-    return fullTree;
-  }
+  // Default to latest version if no version provided
+  const versionPath = version || 'v2';
+  const fullSlug = [clientFolder, versionPath, ...slug];
   
-  // Find the specific client folder in the tree
-  const clientNode = fullTree.children?.find(node => 
-    node.type === 'folder' && node.$id === clientFolder
-  );
+  const page = source.getPage(fullSlug);
   
-  if (!clientNode || clientNode.type !== 'folder') {
-    // If no client folder found, create tree directly from filtered pages
-    const clientPages = getClientPages(clientFolder);
-    
+  if (page) {
     return {
-      name: 'Docs',
-      children: clientPages.map(page => ({
-        type: 'page' as const,
-        name: page.data.title || 'Untitled',
-        url: page.url,
-      }))
+      ...page,
+      // Remove client folder and version from URL
+      url: page.url.replace(`/${clientFolder}/${versionPath}`, '') || '/',
     };
   }
   
-  // Transform the client folder's children to remove client folder prefix from URLs
-  const transformedChildren = clientNode.children?.map(child => {
-    if (child.type === 'page') {
-      return {
-        ...child,
-        url: child.url?.replace(`/${clientFolder}`, '') || child.url,
-      };
-    } else if (child.type === 'folder') {
-      // For nested folders, transform their children too
-      return {
-        ...child,
-        children: child.children?.map(nestedChild => {
-          if (nestedChild.type === 'page') {
-            return {
-              ...nestedChild,
-              url: nestedChild.url?.replace(`/${clientFolder}`, '') || nestedChild.url,
-            };
-          }
-          return nestedChild;
-        })
-      };
-    }
-    return child;
-  }) || [];
+  return null;
+}
+
+// Export function to get client-specific page tree with version support
+export function getClientPageTree(clientFolder?: string, version?: string) {
+  if (!clientFolder) {
+    return source.pageTree;
+  }
+
+  // Default to latest version if no version provided
+  const versionPath = version || 'v2';
+  const targetPath = `/${clientFolder}/${versionPath}`;
   
-  // Return a proper Root structure with the transformed children
+  // Find the client's version folder in the page tree
+  function findClientNode(node: any, path: string[]): any {
+    if (path.length === 0) {
+      return node;
+    }
+    
+    const [current, ...rest] = path;
+    const child = node.children?.find((child: any) => 
+      child.type === 'folder' && child.$id.includes(current)
+    );
+    
+    if (child) {
+      return findClientNode(child, rest);
+    }
+    
+    return null;
+  }
+  
+  // Split the path and find the corresponding node
+  const pathParts = targetPath.split('/').filter(Boolean); // ['acme-corp', 'v1']
+  const clientNode = findClientNode(source.pageTree, pathParts);
+  
+  if (clientNode) {
+    // Create a new tree with the client's content as root
+    // Transform the URLs to remove the client folder and version prefix
+    function transformNode(node: any): any {
+      const transformed = { ...node };
+      
+      if (node.url) {
+        transformed.url = node.url.replace(targetPath, '') || '/';
+      }
+      
+      if (node.children) {
+        transformed.children = node.children.map(transformNode);
+      }
+      
+      return transformed;
+    }
+    
+    return {
+      name: clientNode.name || 'Docs',
+      children: clientNode.children ? clientNode.children.map(transformNode) : [],
+    };
+  }
+  
+  // Fallback: create tree from filtered pages
+  const clientPages = getClientPages(clientFolder, version);
   return {
     name: 'Docs',
-    children: transformedChildren
+    children: clientPages.map(page => ({
+      type: 'page',
+      name: page.data.title || page.url,
+      url: page.url,
+    })),
   };
 }

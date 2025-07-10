@@ -1,0 +1,90 @@
+---
+title: Deployment Guide v1.0
+description: Basic deployment procedures and workflows for TechFlow Solutions v1.0
+---
+
+# Deployment Guide v1.0
+
+## Overview
+
+This guide covers the basic deployment procedures used in TechFlow Solutions' v1.0 development workflow.
+
+## Deployment Process
+
+### 1. Pre-Deployment Checklist
+- Code review completed
+- Manual testing passed
+- Dependencies updated
+- Environment variables configured
+
+### 2. Build Process
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Build application
+npm run build
+```
+
+### 3. Docker Deployment
+
+#### Basic Dockerfile
+```dockerfile
+FROM node:12-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+```
+
+#### Deploy Commands
+```bash
+# Build image
+docker build -t myapp:v1.0 .
+
+# Run container
+docker run -p 3000:3000 myapp:v1.0
+```
+
+## Environment Configuration
+
+### Development
+- Local database
+- Debug logging enabled
+- Hot reloading
+
+### Production
+- Remote database
+- Error logging only
+- Optimized builds
+
+## Monitoring (Basic)
+
+### Health Checks
+- Server ping endpoint
+- Database connection test
+- Memory usage monitoring
+
+### Logs
+- Application logs to files
+- Error tracking via email alerts
+
+## Backup Strategy
+
+- Daily database backups
+- Weekly code repository backups
+- Manual backup verification
+
+## Legacy Notes
+
+This v1.0 deployment approach provided our foundation. The v2.0 system includes CI/CD pipelines, automated testing, container orchestration, and comprehensive monitoring. 
