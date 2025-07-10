@@ -37,40 +37,22 @@ function parseSubdomain(hostname: string): { clientFolder: string | null; versio
   // Split hostname into parts
   const parts = host.split('.');
   
-  // Handle localhost development
-  if (host.includes('.localhost')) {
-    // Examples: 
-    // acme-corp.docs.localhost -> ['acme-corp', 'docs', 'localhost']
-    // acme-corp.v1.docs.localhost -> ['acme-corp', 'v1', 'docs', 'localhost']
-    
-    if (parts.length === 4 && parts[2] === 'docs') {
-      // Format: client.version.docs.localhost
-      const clientFolder = parts[0];
-      const version = parts[1];
+  // Universal logic for both localhost and production:
+  // Two scenarios:
+  // 1. clientName.docs.domain (parts[1] === 'docs')
+  // 2. clientName.version.docs.domain (parts[2] === 'docs')
+  
+  if (parts.length >= 3 && parts[1] === 'docs') {
+    // Scenario 1: clientName.docs.domain
+    const clientFolder = parts[0];
+    return { clientFolder, version: null };
+  } else if (parts.length >= 4 && parts[2] === 'docs') {
+    // Scenario 2: clientName.version.docs.domain
+    const clientFolder = parts[0];
+    const version = parts[1];
+    // Validate version format
+    if (version.startsWith('v')) {
       return { clientFolder, version };
-    } else if (parts.length === 3 && parts[1] === 'docs') {
-      // Format: client.docs.localhost
-      const clientFolder = parts[0];
-      return { clientFolder, version: null };
-    }
-  } else {
-    // Production domain handling
-    // Two scenarios:
-    // 1. clientName.docs.domain.com (parts[1] === 'docs')
-    // 2. clientName.version.docs.domain.com (parts[2] === 'docs')
-    
-    if (parts.length >= 3 && parts[1] === 'docs') {
-      // Scenario 1: clientName.docs.domain.com
-      const clientFolder = parts[0];
-      return { clientFolder, version: null };
-    } else if (parts.length >= 4 && parts[2] === 'docs') {
-      // Scenario 2: clientName.version.docs.domain.com
-      const clientFolder = parts[0];
-      const version = parts[1];
-      // Validate version format
-      if (version.startsWith('v')) {
-        return { clientFolder, version };
-      }
     }
   }
   
