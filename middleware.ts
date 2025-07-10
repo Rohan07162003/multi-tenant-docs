@@ -43,33 +43,33 @@ function parseSubdomain(hostname: string): { clientFolder: string | null; versio
     // acme-corp.docs.localhost -> ['acme-corp', 'docs', 'localhost']
     // acme-corp.v1.docs.localhost -> ['acme-corp', 'v1', 'docs', 'localhost']
     
-    if (parts.length === 4) {
-      // Format: client.version.docs.localhost (e.g., acme-corp.v1.docs.localhost)
+    if (parts.length === 4 && parts[2] === 'docs') {
+      // Format: client.version.docs.localhost
       const clientFolder = parts[0];
       const version = parts[1];
       return { clientFolder, version };
-    } else if (parts.length === 3) {
-      // Format: client.docs.localhost (e.g., acme-corp.docs.localhost) - no version specified
+    } else if (parts.length === 3 && parts[1] === 'docs') {
+      // Format: client.docs.localhost
       const clientFolder = parts[0];
       return { clientFolder, version: null };
     }
   } else {
     // Production domain handling
-    // Examples:
-    // acme-corp.docs.domain.com -> ['acme-corp', 'docs', 'domain', 'com']
-    // acme-corp.v1.docs.domain.com -> ['acme-corp', 'v1', 'docs', 'domain', 'com']
+    // Two scenarios:
+    // 1. clientName.docs.domain.com (parts[1] === 'docs')
+    // 2. clientName.version.docs.domain.com (parts[2] === 'docs')
     
-    if (parts.length >= 4) {
-      // Check if second part is a version (starts with 'v') and third part is 'docs'
-      if (parts[1].startsWith('v') && parts[2] === 'docs') {
-        // Format: client.version.docs.domain.com
-        const clientFolder = parts[0];
-        const version = parts[1];
+    if (parts.length >= 3 && parts[1] === 'docs') {
+      // Scenario 1: clientName.docs.domain.com
+      const clientFolder = parts[0];
+      return { clientFolder, version: null };
+    } else if (parts.length >= 4 && parts[2] === 'docs') {
+      // Scenario 2: clientName.version.docs.domain.com
+      const clientFolder = parts[0];
+      const version = parts[1];
+      // Validate version format
+      if (version.startsWith('v')) {
         return { clientFolder, version };
-      } else if (parts[1] === 'docs') {
-        // Format: client.docs.domain.com - no version specified
-        const clientFolder = parts[0];
-        return { clientFolder, version: null };
       }
     }
   }
