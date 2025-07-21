@@ -1,0 +1,282 @@
+---
+title: Quick Start Guide v2.0
+description: Get up and running quickly with our enhanced platform v2.0
+---
+
+# Quick Start Guide v2.0
+
+This guide will help you get started with our enhanced platform v2.0 in just a few minutes.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- Node.js 18+ or Python 3.8+ installed
+- npm, yarn, or pip package manager
+- A text editor or IDE
+- Git (for cloning examples)
+
+## Installation Options
+
+### Option 1: NPM Package (Recommended)
+
+```bash
+npm install -g @ourplatform/cli@latest
+```
+
+### Option 2: Python Package
+
+```bash
+pip install ourplatform-cli
+```
+
+### Option 3: Docker Container
+
+```bash
+docker run -it ourplatform/cli:latest
+```
+
+## Quick Setup
+
+### Step 1: Initialize Your Project
+
+```bash
+# Create a new project with interactive setup
+ourplatform init my-project
+
+# Or use a specific template
+ourplatform init my-project --template=api-client
+```
+
+Available templates:
+- `api-client` - REST API client application
+- `webhook-handler` - Webhook processing service
+- `dashboard` - Analytics dashboard
+- `microservice` - Microservice template
+
+### Step 2: Configure Authentication
+
+```bash
+cd my-project
+ourplatform auth login
+```
+
+Or set up manually:
+
+```bash
+# Set your API key
+export OURPLATFORM_API_KEY="your_api_key_here"
+
+# Or create a .env file
+echo "OURPLATFORM_API_KEY=your_api_key_here" > .env
+```
+
+### Step 3: Start Development
+
+```bash
+# Start with hot reloading
+npm run dev
+
+# Or with debugging enabled
+DEBUG=ourplatform:* npm run dev
+```
+
+Your application will be available at `http://localhost:3000`.
+
+## Enhanced Features in v2.0
+
+### Real-time API Testing
+
+Test API endpoints directly in your terminal:
+
+```bash
+ourplatform test api users list
+ourplatform test api projects create --name "Test Project"
+```
+
+### Interactive Examples
+
+```javascript
+import { PlatformClient } from '@ourplatform/sdk';
+
+// Enhanced client with auto-retry and caching
+const client = new PlatformClient({
+  apiKey: process.env.OURPLATFORM_API_KEY,
+  environment: 'production', // or 'staging'
+  retryAttempts: 3,
+  cacheEnabled: true
+});
+
+// Async/await with error handling
+try {
+  const users = await client.users.list({
+    filter: { status: 'active' },
+    sort: { created_at: 'desc' },
+    limit: 50
+  });
+  
+  console.log(`Found ${users.pagination.total} users`);
+} catch (error) {
+  console.error('API Error:', error.message);
+}
+```
+
+### Batch Operations
+
+```javascript
+// Create multiple users in one request
+const newUsers = await client.users.batchCreate([
+  { name: 'Alice', email: 'alice@example.com' },
+  { name: 'Bob', email: 'bob@example.com' },
+  { name: 'Charlie', email: 'charlie@example.com' }
+]);
+
+console.log(`Created ${newUsers.length} users`);
+```
+
+### Webhook Integration
+
+```javascript
+import { WebhookValidator } from '@ourplatform/sdk';
+
+// Validate and process webhooks
+app.post('/webhooks/ourplatform', (req, res) => {
+  const validator = new WebhookValidator(process.env.WEBHOOK_SECRET);
+  
+  if (!validator.verify(req.body, req.headers['x-signature'])) {
+    return res.status(401).send('Invalid signature');
+  }
+  
+  const { event, data } = req.body;
+  
+  switch (event) {
+    case 'user.created':
+      console.log('New user:', data.user);
+      break;
+    case 'project.updated':
+      console.log('Project updated:', data.project);
+      break;
+  }
+  
+  res.status(200).send('OK');
+});
+```
+
+## Advanced Configuration
+
+### Environment Configuration
+
+```javascript
+// config/development.js
+module.exports = {
+  api: {
+    baseUrl: 'https://api-staging.ourplatform.com/v2',
+    timeout: 10000,
+    retryAttempts: 3
+  },
+  features: {
+    caching: true,
+    realTimeUpdates: true,
+    analytics: false
+  }
+};
+```
+
+### Custom HTTP Client
+
+```javascript
+import { PlatformClient, HttpAdapter } from '@ourplatform/sdk';
+
+// Use your preferred HTTP library
+class AxiosAdapter extends HttpAdapter {
+  constructor() {
+    super();
+    this.client = axios.create({
+      timeout: 5000,
+      // your custom configuration
+    });
+  }
+}
+
+const client = new PlatformClient({
+  apiKey: 'your-key',
+  httpAdapter: new AxiosAdapter()
+});
+```
+
+## Development Tools
+
+### CLI Commands
+
+```bash
+# Generate API client code
+ourplatform generate client --language typescript
+
+# Validate API responses
+ourplatform validate --endpoint users.list
+
+# Monitor API usage
+ourplatform monitor --project my-project
+
+# Generate OpenAPI spec
+ourplatform spec generate
+```
+
+### VS Code Extension
+
+Install our VS Code extension for:
+- API endpoint auto-completion
+- Real-time API documentation
+- Request/response validation
+- Debugging tools
+
+## Testing
+
+### Unit Testing
+
+```javascript
+import { createMockClient } from '@ourplatform/sdk/testing';
+
+describe('User Service', () => {
+  const mockClient = createMockClient();
+  
+  test('should list users', async () => {
+    mockClient.users.list.mockResolvedValue({
+      data: [{ id: '1', name: 'Test User' }],
+      pagination: { total: 1 }
+    });
+    
+    const users = await userService.getUsers();
+    expect(users).toHaveLength(1);
+  });
+});
+```
+
+### Integration Testing
+
+```bash
+# Run integration tests against staging
+ourplatform test integration --env staging
+
+# Test specific endpoints
+ourplatform test endpoint users.create --data '{"name":"Test","email":"test@example.com"}'
+```
+
+## Next Steps
+
+- Explore the [Enhanced API Reference](/api-reference) for all v2.0 endpoints
+- Try [Interactive Examples](/interactive-examples) in your browser
+- Read [Best Practices](/best-practices) for production deployments
+- Check out [Advanced Topics](/webhooks) for webhooks and integrations
+- Join our [Developer Community](https://discord.gg/ourplatform) for support
+
+## Migration from v1.0
+
+Already using v1.0? Check our [Migration Guide](/migration-guide) for step-by-step instructions to upgrade to v2.0.
+
+## Need Help?
+
+- **Documentation**: Complete reference at [docs.ourplatform.com](https://docs.ourplatform.com)
+- **Community**: Join our Discord server for real-time support
+- **GitHub**: Report issues and contribute at [github.com/ourplatform](https://github.com/ourplatform)
+- **Support**: Enterprise support available at support@ourplatform.com 

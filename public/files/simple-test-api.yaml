@@ -1,0 +1,231 @@
+openapi: 3.0.3
+info:
+  title: Test API
+  description: A simple test API for demonstrating Fumadocs OpenAPI integration
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+
+paths:
+  /users:
+    get:
+      summary: Get all users
+      description: Retrieve a list of all users in the system
+      tags:
+        - Users
+      responses:
+        '200':
+          description: List of users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  meta:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      summary: Create a new user
+      description: Create a new user account
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+            example:
+              name: "Alice Johnson"
+              email: "alice@example.com"
+              role: "developer"
+              department: "engineering"
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+                    example: "User created successfully"
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects:
+    get:
+      summary: Get all projects
+      description: Retrieve a list of projects with optional filtering
+      tags:
+        - Projects
+      parameters:
+        - name: status
+          in: query
+          description: Filter by project status
+          required: false
+          schema:
+            type: string
+            enum: [active, completed, on_hold]
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+      responses:
+        '200':
+          description: Projects retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  meta:
+                    $ref: '#/components/schemas/Pagination'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        role:
+          type: string
+          example: "admin"
+        department:
+          type: string
+          example: "engineering"
+
+    CreateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          example: "Alice Johnson"
+        email:
+          type: string
+          format: email
+          example: "alice@example.com"
+        role:
+          type: string
+          example: "developer"
+        department:
+          type: string
+          example: "engineering"
+      required:
+        - name
+        - email
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Website Redesign"
+        description:
+          type: string
+          example: "Complete overhaul of company website"
+        owner_id:
+          type: integer
+          example: 1
+        team_members:
+          type: array
+          items:
+            type: integer
+          example: [1, 2]
+        deadline:
+          type: string
+          format: date
+          example: "2024-06-15"
+        status:
+          type: string
+          enum: [active, completed, on_hold]
+          example: "active"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-10T10:00:00Z"
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total_pages:
+          type: integer
+          example: 1
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "Invalid request data"
+            details:
+              type: object
+              additionalProperties: true
+
+tags:
+  - name: Users
+    description: User management operations
+  - name: Projects
+    description: Project management operations 

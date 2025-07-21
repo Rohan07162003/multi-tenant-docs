@@ -1,3 +1,29 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+
+/* Fix for code block visibility */
+pre code {
+  color: inherit !important;
+}
+
+.api-endpoint-body pre {
+  background-color: #f8f9fa !important;
+  color: #333333 !important;
+}
+
+.api-endpoint-body pre code {
+  color: #333333 !important;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .api-endpoint-body pre {
+    background-color: #1a1a1a !important;
+    color: #e5e5e5 !important;
+  }
+  
+  .api-endpoint-body pre code {
+    color: #e5e5e5 !important;
+  }
+}

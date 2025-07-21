@@ -1,5 +1,6 @@
 import { docs } from '@/.source';
 import { loader } from 'fumadocs-core/source';
+import { createOpenAPI } from 'fumadocs-openapi/server';
 
 // Create the main source
 export const source = loader({
@@ -7,39 +8,41 @@ export const source = loader({
   source: docs.toFumadocsSource(),
 });
 
-// Export function to get available versions for a client
+export const openapi = createOpenAPI();
+
 export function getClientVersions(clientFolder: string): string[] {
-  if (!clientFolder) return [];
-  
-  // Get all pages and find version folders for this client by checking the source file paths
+  if (!clientFolder || typeof clientFolder !== 'string') return [];
+
   const allPages = source.getPages();
   const versions = new Set<string>();
-  
-  allPages.forEach(page => {
-    // Check the page's file property or url to find version folders
-    // The page.url will be like /docs/client-folder/version/page-name or /docs/client-folder/version
-    if (page.url.includes(`/${clientFolder}/`)) {
-      // Extract the part after /docs/client-folder/
-      const clientFolderIndex = page.url.indexOf(`/${clientFolder}/`);
-      const pathAfterClient = page.url.substring(clientFolderIndex + `/${clientFolder}/`.length);
-      
-      // Get the first segment which should be the version (v1, v2, etc.)
-      const versionPart = pathAfterClient.split('/')[0];
-      
-      if (versionPart && versionPart.startsWith('v')) {
-        versions.add(versionPart);
-      }
-    }
-  });
-  
-  const sortedVersions = Array.from(versions).sort((a, b) => {
-    const aNum = parseInt(a.substring(1));
-    const bNum = parseInt(b.substring(1));
-    return aNum - bNum;
-  });
+   // Match URLs like /docs/clientFolder/v1/, /docs/clientFolder/v2/page-name
+   const versionRegex = new RegExp(`/${clientFolder}/(v\\d+)(/|$)`);
 
-  // Sort versions (v1, v2, etc.)
-  return sortedVersions;
+  for (const page of allPages) {
+    // console.log('page', page);
+    const match = page.url.match(versionRegex);
+    // console.log('match', match);
+    if (match && match[1]) {
+      versions.add(match[1]);
+    }
+  }
+  console.log('versions', versions);
+  return Array.from(versions).sort((a, b) => {
+    const numA = parseInt(a.slice(1)); // remove "v" from "v3"
+    const numB = parseInt(b.slice(1));
+    return numA - numB;
+  });
+//   If you want to support things like: v1.0 v2-beta v3.1.4
+
+// You could upgrade the regex like this:
+
+// const versionRegex = new RegExp(`/${clientFolder}/(v[\\w.-]+)/`);
+}
+
+// Helper to get the latest version for a client
+export function getLatestVersion(clientFolder: string): string | undefined {
+  const versions = getClientVersions(clientFolder);
+  return versions[versions.length - 1];
 }
 
 // Export function to get client-specific pages with version support
@@ -50,16 +53,15 @@ export function getClientPages(clientFolder?: string, version?: string) {
     return allPages;
   }
   
-  // Default to latest version if no version provided
-  const versionPath = version || 'v2';
+  // Use the single source of truth for latest version
+  const versionPath = version || getLatestVersion(clientFolder);
+  if (!versionPath) return [];
   const fullPath = `/${clientFolder}/${versionPath}`;
   
-  // Filter pages to only include those from the specific client folder and version
   return allPages.filter(page => {
     return page.url.startsWith(`${fullPath}/`);
   }).map(page => ({
     ...page,
-    // Remove client folder and version from URL so /acme-corp/v1/production-systems becomes /production-systems
     url: page.url.replace(`${fullPath}`, '') || '/',
   }));
 }
@@ -73,10 +75,10 @@ export function getClientPage(slug: string[], clientFolder?: string, version?: s
     return source.getPage(slug);
   }
   
-  // Default to latest version if no version provided
-  const versionPath = version || 'v2';
+  // Use the single source of truth for latest version
+  const versionPath = version || getLatestVersion(clientFolder);
+  if (!versionPath) return null;
   const fullSlug = [clientFolder, versionPath, ...slug];
-  
   const page = source.getPage(fullSlug);
   
   if (page) {
@@ -93,11 +95,13 @@ export function getClientPage(slug: string[], clientFolder?: string, version?: s
 // Export function to get client-specific page tree with version support
 export function getClientPageTree(clientFolder?: string, version?: string) {
   if (!clientFolder) {
+    console.log('source.pageTree', source.pageTree);
     return source.pageTree;
   }
 
-  // Default to latest version if no version provided
-  const versionPath = version || 'v2';
+  // Use the single source of truth for latest version
+  const versionPath = version || getLatestVersion(clientFolder);
+  if (!versionPath) return { name: 'Docs', children: [] };
   const targetPath = `/${clientFolder}/${versionPath}`;
   
   // Find the client's version folder in the page tree

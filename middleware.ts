@@ -37,6 +37,11 @@ function parseSubdomain(hostname: string): { clientFolder: string | null; versio
   // Split hostname into parts
   const parts = host.split('.');
   
+  // Special case: docs.localhost or docs.domain - routes to public folder
+  if (parts.length >= 2 && parts[0] === 'docs') {
+    return { clientFolder: 'public', version: null };
+  }
+  
   // Universal logic for both localhost and production:
   // Two scenarios:
   // 1. clientName.docs.domain (parts[1] === 'docs')

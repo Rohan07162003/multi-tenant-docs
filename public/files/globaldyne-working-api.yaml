@@ -1,0 +1,272 @@
+openapi: 3.0.3
+info:
+  title: GlobalDyne Supplier Portal API
+  description: |
+    The GlobalDyne Supplier Portal API provides access to supplier management,
+    onboarding, inventory tracking, and transportation management systems.
+  version: 3.0.0
+  contact:
+    name: GlobalDyne API Support
+    email: api-support@globaldyne.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+
+paths:
+  /suppliers:
+    get:
+      summary: List all suppliers
+      description: Retrieve a paginated list of all suppliers in the system
+      tags:
+        - Suppliers
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of suppliers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Supplier'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+    post:
+      summary: Create a new supplier
+      description: Register a new supplier in the system
+      tags:
+        - Suppliers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - company_name
+                - contact_email
+                - country
+              properties:
+                company_name:
+                  type: string
+                  example: "Acme Parts LLC"
+                contact_email:
+                  type: string
+                  format: email
+                  example: "contact@acmeparts.com"
+                country:
+                  type: string
+                  example: "USA"
+                certifications:
+                  type: array
+                  items:
+                    type: string
+                  example: ["ISO 9001", "TS 16949"]
+      responses:
+        '201':
+          description: Supplier created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Supplier'
+                  message:
+                    type: string
+                    example: "Supplier created successfully"
+
+  /suppliers/{supplierId}:
+    get:
+      summary: Get supplier details
+      description: Retrieve detailed information for a specific supplier
+      tags:
+        - Suppliers
+      parameters:
+        - name: supplierId
+          in: path
+          required: true
+          description: Unique identifier for the supplier
+          schema:
+            type: string
+            example: "SUP-12345"
+      responses:
+        '200':
+          description: Supplier details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Supplier'
+        '404':
+          description: Supplier not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /inventory/tracking:
+    get:
+      summary: Get inventory tracking data
+      description: Retrieve real-time inventory levels and tracking information
+      tags:
+        - Inventory
+      parameters:
+        - name: supplier_id
+          in: query
+          description: Filter by specific supplier
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by inventory status
+          required: false
+          schema:
+            type: string
+            enum: [in_stock, low_stock, out_of_stock]
+      responses:
+        '200':
+          description: Inventory data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InventoryItem'
+
+components:
+  schemas:
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "SUP-12345"
+        company_name:
+          type: string
+          example: "Acme Parts LLC"
+        contact_email:
+          type: string
+          format: email
+          example: "contact@acmeparts.com"
+        country:
+          type: string
+          example: "USA"
+        status:
+          type: string
+          enum: [active, pending, suspended]
+          example: "active"
+        certifications:
+          type: array
+          items:
+            type: string
+          example: ["ISO 9001", "TS 16949"]
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "INV-67890"
+        sku:
+          type: string
+          example: "PART-001"
+        name:
+          type: string
+          example: "Engine Component"
+        quantity:
+          type: integer
+          example: 150
+        status:
+          type: string
+          enum: [in_stock, low_stock, out_of_stock]
+          example: "in_stock"
+        supplier_id:
+          type: string
+          example: "SUP-12345"
+        last_updated:
+          type: string
+          format: date-time
+          example: "2024-01-15T14:20:00Z"
+
+    PaginationMeta:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 150
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        pages:
+          type: integer
+          example: 8
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "SUPPLIER_NOT_FOUND"
+            message:
+              type: string
+              example: "Supplier not found"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: [] 

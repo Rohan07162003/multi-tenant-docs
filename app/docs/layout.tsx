@@ -8,6 +8,7 @@ import { headers } from 'next/headers';
 async function getClientContext(): Promise<{ clientFolder?: string; version?: string }> {
   try {
     const headersList = await headers();
+    // console.log('headersList', headersList);
     const clientFolder = headersList.get('x-client-folder') || undefined;
     const version = headersList.get('x-client-version') || undefined;
     return { clientFolder, version };
@@ -18,7 +19,12 @@ async function getClientContext(): Promise<{ clientFolder?: string; version?: st
 
 export default async function Layout({ children }: { children: ReactNode }) {
   const { clientFolder, version } = await getClientContext();
+  console.log('clientFolder', clientFolder);
+  console.log('version', version);
   const pageTree = getClientPageTree(clientFolder, version);
+  const hardcodetree=getClientPageTree('acme-corp', 'v2')
+  console.log('getClientPageTree', hardcodetree)
+  console.log('pageTree', pageTree);
   
   return (
     <DocsLayout tree={pageTree} {...baseOptions}>

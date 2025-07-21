@@ -4,6 +4,9 @@
     "index",
     "development-standards",
     "architecture-guidelines", 
-    "deployment-procedures"
+    "deployment-procedures",
+    "openapieg",
+    "api-test",
+    "minimal-api-test"
   ]
 } 

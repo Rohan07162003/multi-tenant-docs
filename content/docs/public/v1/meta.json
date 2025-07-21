@@ -1,0 +1,15 @@
+{
+  "title": "Public Docs v1",
+  "pages": [
+    "index",
+    "quick-start",
+    "installation",
+    "configuration",
+    "api-reference",
+    "authentication",
+    "rate-limiting",
+    "sdk-docs",
+    "examples",
+    "best-practices"
+  ]
+} 

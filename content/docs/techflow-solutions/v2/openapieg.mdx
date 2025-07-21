@@ -1,0 +1,86 @@
+---
+title: Interactive API Examples
+description: Interactive API documentation examples using custom components
+---
+
+# Interactive API Examples
+
+This page demonstrates how to create interactive API documentation using custom components for specific endpoints.
+
+## User Management API
+
+### Create a New User
+
+<ApiEndpoint
+  method="POST"
+  path="/api/users"
+  defaultBody={{ 
+    name: "Alice Johnson", 
+    email: "alice@example.com",
+    role: "developer",
+    department: "engineering"
+  }}
+  description="Creates a new user account and returns the created user object with generated ID."
+/>
+
+### Get User Details
+
+<ApiEndpoint
+  method="GET"
+  path="/api/users/1"
+  description="Retrieves detailed information for a specific user by their ID."
+/>
+
+### Update User
+
+<ApiEndpoint
+  method="PUT"
+  path="/api/users/1"
+  defaultBody={{
+    name: "Alice Johnson Smith",
+    department: "product"
+  }}
+  description="Updates user information. Only provided fields will be modified."
+/>
+
+### Delete User
+
+<ApiEndpoint
+  method="DELETE"
+  path="/api/users/2"
+  description="Permanently deletes a user account. This action cannot be undone."
+/>
+
+## Project Management API
+
+### Create Project
+
+<ApiEndpoint
+  method="POST"
+  path="/api/projects"
+  defaultBody={{
+    name: "Website Redesign",
+    description: "Complete overhaul of company website",
+    owner_id: 123,
+    team_members: [456, 789],
+    deadline: "2024-06-15"
+  }}
+  description="Creates a new project with assigned team members and deadline."
+/>
+
+### List Projects
+
+<ApiEndpoint
+  method="GET"
+  path="/api/projects?status=active&page=1"
+  description="Retrieves a paginated list of projects. Supports filtering by status, owner, and team member."
+/>
+
+---
+
+## Notes
+
+- All API calls require authentication via Bearer token
+- Rate limiting applies: 1000 requests per hour per API key  
+- For production usage, replace example.com with your actual API domain
+- Test endpoints are sandboxed and won't affect real data

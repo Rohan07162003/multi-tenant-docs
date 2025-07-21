@@ -1,0 +1,55 @@
+---
+title: Supplier API (OpenAPI Demo)
+description: Interactive API documentation for the GlobalDyne Supplier Portal using OpenAPI.
+---
+
+# Supplier API (OpenAPI Demo)
+
+This page demonstrates interactive API documentation using the OpenAPI integration with Fumadocs. The API below is fully interactive - you can try out real API calls directly from the documentation.
+
+## Interactive API Documentation
+
+The following OpenAPI specification provides complete documentation for the GlobalDyne Supplier Portal API v3. You can explore all endpoints, view request/response schemas, and test API calls directly from this page.
+
+**Note:** The OpenAPI integration is temporarily disabled due to a parsing issue with the `fumadocs-openapi` library. 
+
+In the meantime, you can:
+- Visit the [TechFlow Solutions Interactive API Examples](http://techflow-solutions.docs.localhost:3000/docs/openapieg) which use custom components
+- Test the API endpoints directly at: `http://localhost:3000/api/suppliers`
+
+### Working Endpoints:
+- `GET /api/suppliers` - List all suppliers  
+- `POST /api/suppliers` - Create new supplier
+
+## Key Features
+
+### 🔐 Authentication
+All API endpoints require Bearer token authentication. In a production environment, you would need to obtain an API key from your GlobalDyne account manager.
+
+### 📊 Real-time Operations
+- **Supplier Management**: Complete CRUD operations for supplier data
+- **Inventory Tracking**: Real-time inventory monitoring and updates  
+- **Transportation**: Shipment creation and tracking capabilities
+
+### 🚀 Try It Out
+Use the interactive API explorer above to:
+1. Expand any endpoint to see details
+2. Click "Try it out" to test the API
+3. Modify request parameters and body
+4. Execute calls and see live responses
+
+### 📋 Sample Workflow
+
+1. **Onboard a New Supplier**: Use `POST /suppliers/onboard` to create a new supplier account
+2. **Check Status**: Use `GET /suppliers/{supplierId}` to verify the supplier details
+3. **Track Inventory**: Use `GET /inventory/tracking` to monitor supplier inventory
+4. **Create Shipments**: Use `POST /transportation/shipments` to initiate new shipments
+
+---
+
+## Need Help?
+
+For API support, integration questions, or to request access credentials:
+- **Email**: api-support@globaldyne.com
+- **Documentation**: https://docs.globaldyne.com
+- **Status Page**: https://status.globaldyne.com 

@@ -1,0 +1,658 @@
+openapi: 3.0.3
+info:
+  title: GlobalDyne Supplier Portal API
+  description: |
+    The GlobalDyne Supplier Portal API provides comprehensive access to supplier management,
+    onboarding, inventory tracking, and transportation management systems.
+    
+    ## Authentication
+    All API requests require an API key in the Authorization header:
+    ```
+    Authorization: Bearer YOUR_API_KEY
+    ```
+  version: 3.0.0
+  contact:
+    name: GlobalDyne API Support
+    email: api-support@globaldyne.com
+    url: https://docs.globaldyne.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.globaldyne.com/v3
+    description: Production server
+  - url: https://staging-api.globaldyne.com/v3
+    description: Staging server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /suppliers:
+    get:
+      summary: List all suppliers
+      description: Retrieve a paginated list of all suppliers in the system
+      tags:
+        - Suppliers
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          description: Filter by supplier status
+          required: false
+          schema:
+            type: string
+            enum: [active, pending, suspended, inactive]
+      responses:
+        '200':
+          description: List of suppliers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Supplier'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /suppliers/onboard:
+    post:
+      summary: Onboard a new supplier
+      description: Create a new supplier and initiate the onboarding process
+      tags:
+        - Suppliers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierOnboardingRequest'
+            example:
+              company_name: "Acme Parts LLC"
+              contact_email: "contact@acmeparts.com"
+              contact_phone: "+1-555-0123"
+              country: "USA"
+              address:
+                street: "123 Industrial Blvd"
+                city: "Detroit"
+                state: "MI"
+                postal_code: "48201"
+                country: "USA"
+              business_type: "manufacturer"
+              certifications: ["ISO 9001", "TS 16949"]
+              services: ["automotive_parts", "electronics"]
+      responses:
+        '201':
+          description: Supplier onboarding initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierOnboardingResponse'
+              example:
+                supplier_id: "SUP-12345"
+                status: "pending_review"
+                application_date: "2024-01-15T10:30:00Z"
+                estimated_review_time: "5-7 business days"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Supplier already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: "SUPPLIER_EXISTS"
+                  message: "A supplier with this email already exists"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /suppliers/{supplierId}:
+    get:
+      summary: Get supplier details
+      description: Retrieve detailed information about a specific supplier
+      tags:
+        - Suppliers
+      parameters:
+        - name: supplierId
+          in: path
+          required: true
+          description: Unique identifier for the supplier
+          schema:
+            type: string
+            pattern: '^SUP-[0-9]+$'
+            example: "SUP-12345"
+      responses:
+        '200':
+          description: Supplier details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update supplier information
+      description: Update details for an existing supplier
+      tags:
+        - Suppliers
+      parameters:
+        - name: supplierId
+          in: path
+          required: true
+          description: Unique identifier for the supplier
+          schema:
+            type: string
+            pattern: '^SUP-[0-9]+$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierUpdateRequest'
+      responses:
+        '200':
+          description: Supplier updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /inventory/tracking:
+    get:
+      summary: Get inventory tracking data
+      description: Retrieve real-time inventory tracking information
+      tags:
+        - Inventory
+      parameters:
+        - name: supplier_id
+          in: query
+          description: Filter by specific supplier
+          required: false
+          schema:
+            type: string
+        - name: location
+          in: query
+          description: Filter by warehouse location
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by inventory status
+          required: false
+          schema:
+            type: string
+            enum: [in_stock, low_stock, out_of_stock, on_order]
+      responses:
+        '200':
+          description: Inventory tracking data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InventoryItem'
+                  summary:
+                    $ref: '#/components/schemas/InventorySummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /transportation/shipments:
+    get:
+      summary: List shipments
+      description: Retrieve a list of transportation shipments
+      tags:
+        - Transportation
+      parameters:
+        - name: status
+          in: query
+          description: Filter by shipment status
+          required: false
+          schema:
+            type: string
+            enum: [pending, in_transit, delivered, cancelled]
+        - name: supplier_id
+          in: query
+          description: Filter by supplier
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Shipments retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Shipment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create new shipment
+      description: Create a new transportation shipment
+      tags:
+        - Transportation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShipmentRequest'
+      responses:
+        '201':
+          description: Shipment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shipment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token required for authentication
+
+  schemas:
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          example: "123 Industrial Blvd"
+        city:
+          type: string
+          example: "Detroit"
+        state:
+          type: string
+          example: "MI"
+        postal_code:
+          type: string
+          example: "48201"
+        country:
+          type: string
+          example: "USA"
+      required:
+        - street
+        - city
+        - country
+
+    Supplier:
+      type: object
+      properties:
+        supplier_id:
+          type: string
+          example: "SUP-12345"
+        company_name:
+          type: string
+          example: "Acme Parts LLC"
+        contact_email:
+          type: string
+          format: email
+          example: "contact@acmeparts.com"
+        contact_phone:
+          type: string
+          example: "+1-555-0123"
+        address:
+          $ref: '#/components/schemas/Address'
+        status:
+          type: string
+          enum: [active, pending, suspended, inactive]
+          example: "active"
+        business_type:
+          type: string
+          enum: [manufacturer, distributor, service_provider]
+          example: "manufacturer"
+        certifications:
+          type: array
+          items:
+            type: string
+          example: ["ISO 9001", "TS 16949"]
+        services:
+          type: array
+          items:
+            type: string
+          example: ["automotive_parts", "electronics"]
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    SupplierOnboardingRequest:
+      type: object
+      properties:
+        company_name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: "Acme Parts LLC"
+        contact_email:
+          type: string
+          format: email
+          example: "contact@acmeparts.com"
+        contact_phone:
+          type: string
+          example: "+1-555-0123"
+        country:
+          type: string
+          example: "USA"
+        address:
+          $ref: '#/components/schemas/Address'
+        business_type:
+          type: string
+          enum: [manufacturer, distributor, service_provider]
+          example: "manufacturer"
+        certifications:
+          type: array
+          items:
+            type: string
+          example: ["ISO 9001", "TS 16949"]
+        services:
+          type: array
+          items:
+            type: string
+          example: ["automotive_parts", "electronics"]
+      required:
+        - company_name
+        - contact_email
+        - country
+        - business_type
+
+    SupplierOnboardingResponse:
+      type: object
+      properties:
+        supplier_id:
+          type: string
+          example: "SUP-12345"
+        status:
+          type: string
+          enum: [pending_review, documents_required, approved, rejected]
+          example: "pending_review"
+        application_date:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        estimated_review_time:
+          type: string
+          example: "5-7 business days"
+
+    SupplierUpdateRequest:
+      type: object
+      properties:
+        company_name:
+          type: string
+        contact_email:
+          type: string
+          format: email
+        contact_phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        certifications:
+          type: array
+          items:
+            type: string
+        services:
+          type: array
+          items:
+            type: string
+
+    InventoryItem:
+      type: object
+      properties:
+        item_id:
+          type: string
+          example: "INV-001"
+        name:
+          type: string
+          example: "Brake Pads - Model X"
+        sku:
+          type: string
+          example: "BP-X-001"
+        quantity:
+          type: integer
+          example: 150
+        location:
+          type: string
+          example: "Warehouse A - Section 3"
+        supplier_id:
+          type: string
+          example: "SUP-12345"
+        status:
+          type: string
+          enum: [in_stock, low_stock, out_of_stock, on_order]
+          example: "in_stock"
+        last_updated:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    InventorySummary:
+      type: object
+      properties:
+        total_items:
+          type: integer
+          example: 1250
+        in_stock:
+          type: integer
+          example: 1100
+        low_stock:
+          type: integer
+          example: 120
+        out_of_stock:
+          type: integer
+          example: 30
+
+    Shipment:
+      type: object
+      properties:
+        shipment_id:
+          type: string
+          example: "SHIP-789"
+        supplier_id:
+          type: string
+          example: "SUP-12345"
+        origin:
+          type: string
+          example: "Detroit, MI"
+        destination:
+          type: string
+          example: "Chicago, IL"
+        status:
+          type: string
+          enum: [pending, in_transit, delivered, cancelled]
+          example: "in_transit"
+        tracking_number:
+          type: string
+          example: "TRK123456789"
+        estimated_delivery:
+          type: string
+          format: date-time
+          example: "2024-01-18T14:00:00Z"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    CreateShipmentRequest:
+      type: object
+      properties:
+        supplier_id:
+          type: string
+          example: "SUP-12345"
+        origin:
+          type: string
+          example: "Detroit, MI"
+        destination:
+          type: string
+          example: "Chicago, IL"
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              item_id:
+                type: string
+              quantity:
+                type: integer
+        estimated_delivery:
+          type: string
+          format: date-time
+          example: "2024-01-18T14:00:00Z"
+      required:
+        - supplier_id
+        - origin
+        - destination
+        - items
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 150
+        total_pages:
+          type: integer
+          example: 8
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "The request contains invalid data"
+            details:
+              type: object
+              additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Invalid request data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "VALIDATION_ERROR"
+              message: "The request contains invalid data"
+              details:
+                field: "email"
+                issue: "Invalid email format"
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "UNAUTHORIZED"
+              message: "Authentication required. Please provide a valid API key."
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "NOT_FOUND"
+              message: "The requested resource was not found"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "INTERNAL_ERROR"
+              message: "An unexpected error occurred"
+
+tags:
+  - name: Suppliers
+    description: Supplier management and onboarding operations
+  - name: Inventory
+    description: Inventory tracking and management
+  - name: Transportation
+    description: Transportation and shipment management 

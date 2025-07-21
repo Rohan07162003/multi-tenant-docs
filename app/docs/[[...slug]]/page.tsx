@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { DocsPage, DocsBody } from 'fumadocs-ui/page';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
+import { getMDXComponents } from '@/mdx-components';
 
 // Function to get client context from headers
 async function getClientContext(): Promise<{ clientFolder?: string; version?: string }> {
@@ -23,6 +24,8 @@ export default async function Page(props: {
   const { clientFolder, version } = await getClientContext();
   
   const page = getClientPage(params.slug ?? [], clientFolder, version);
+  // console.log('page', page);
+  // console.log('params', params);
 
   if (!page) notFound();
 
@@ -32,7 +35,7 @@ export default async function Page(props: {
     <DocsPage toc={page.data.toc} full={page.data.full}>
       <DocsBody>
         <h1>{page.data.title}</h1>
-        <MDX />
+        <MDX components={getMDXComponents()} />
       </DocsBody>
     </DocsPage>
   );

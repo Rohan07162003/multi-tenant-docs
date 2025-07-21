@@ -20,6 +20,8 @@ export function VersionToggle({ clientFolder, currentVersion, availableVersions 
     return null;
   }
 
+  const latestVersion = availableVersions[availableVersions.length - 1];
+
   const handleVersionChange = (version: string) => {
     const hostname = window.location.hostname;
     const port = window.location.port;
@@ -29,7 +31,7 @@ export function VersionToggle({ clientFolder, currentVersion, availableVersions 
     
     if (hostname.includes('.localhost')) {
       // Local development
-      if (version === 'v2') {
+      if (version === latestVersion) {
         // Latest version - no version in subdomain
         newHostname = `${clientFolder}.docs.localhost`;
       } else {
@@ -41,7 +43,7 @@ export function VersionToggle({ clientFolder, currentVersion, availableVersions 
       const parts = hostname.split('.');
       const domainSuffix = parts.slice(-2).join('.'); // domain.com
       
-      if (version === 'v2') {
+      if (version === latestVersion) {
         // Latest version - no version in subdomain
         newHostname = `${clientFolder}.docs.${domainSuffix}`;
       } else {
@@ -50,7 +52,8 @@ export function VersionToggle({ clientFolder, currentVersion, availableVersions 
       }
     }
     
-    const newUrl = `${protocol}//${newHostname}${port ? `:${port}` : ''}${pathname}`;
+    // Always go to the index page of the docs for the selected version
+    const newUrl = `${protocol}//${newHostname}${port ? `:${port}` : ''}/docs/`;
     window.location.href = newUrl;
   };
 
@@ -60,8 +63,8 @@ export function VersionToggle({ clientFolder, currentVersion, availableVersions 
     setIsOpen(!isOpen);
   };
 
-  const displayVersion = currentVersion || 'v2';
-  const displayName = displayVersion === 'v2' ? `${displayVersion} (Latest)` : displayVersion;
+  const displayVersion = currentVersion || latestVersion;
+  const displayName = displayVersion === latestVersion ? `${displayVersion} (Latest)` : displayVersion;
 
   return (
     <div className="relative">
@@ -86,7 +89,7 @@ export function VersionToggle({ clientFolder, currentVersion, availableVersions 
       {isOpen && (
         <div className="absolute top-full left-0 mt-1 min-w-[120px] bg-fd-background border border-fd-border rounded-md shadow-lg z-50">
           {availableVersions.map((version) => {
-            const isLatest = version === 'v2';
+            const isLatest = version === latestVersion;
             const isCurrent = version === displayVersion;
             
             return (

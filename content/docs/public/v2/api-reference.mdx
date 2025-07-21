@@ -1,0 +1,250 @@
+---
+title: API Reference v2.0
+description: Complete API reference for our platform v2.0 with enhanced features
+---
+
+# API Reference v2.0
+
+Welcome to our platform's enhanced API reference documentation. This covers version 2.0 of our REST API with new endpoints and improved functionality.
+
+## Base URL
+
+```
+https://api.ourplatform.com/v2
+```
+
+## Authentication
+
+### API Key Authentication
+Include your API key in the Authorization header:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+### OAuth 2.0 (New in v2.0)
+For enhanced security, use OAuth 2.0 for user-specific operations:
+
+```http
+Authorization: Bearer YOUR_OAUTH_TOKEN
+```
+
+## New in v2.0
+
+- **Batch Operations**: Process multiple items in a single request
+- **Webhooks**: Real-time event notifications
+- **GraphQL Support**: Alternative query language
+- **Enhanced Filtering**: Advanced query parameters
+- **Real-time Data**: WebSocket connections for live updates
+
+## Core Endpoints
+
+### Users API
+
+#### List Users (Enhanced)
+
+```http
+GET /api/v2/users
+```
+
+**Query Parameters:**
+- `page` (integer): Page number (default: 1)
+- `limit` (integer): Items per page (default: 20, max: 100)
+- `sort` (string): Sort field (`created_at`, `name`, `email`)
+- `order` (string): Sort order (`asc`, `desc`)
+- `filter[status]` (string): Filter by status (`active`, `inactive`)
+- `search` (string): Search in name and email
+
+**Example Request:**
+```http
+GET /api/v2/users?page=1&limit=50&sort=created_at&order=desc&filter[status]=active
+```
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": "usr_123456",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "status": "active",
+      "avatar_url": "https://cdn.ourplatform.com/avatars/usr_123456.jpg",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-15T10:30:00Z",
+      "metadata": {
+        "department": "Engineering",
+        "role": "Senior Developer"
+      }
+    }
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 20,
+    "total": 150,
+    "total_pages": 8,
+    "has_next": true,
+    "has_prev": false
+  }
+}
+```
+
+#### Batch Create Users (New)
+
+```http
+POST /api/v2/users/batch
+```
+
+**Request Body:**
+```json
+{
+  "users": [
+    {
+      "name": "Jane Doe",
+      "email": "jane@example.com",
+      "metadata": {
+        "department": "Marketing"
+      }
+    },
+    {
+      "name": "Bob Smith",
+      "email": "bob@example.com",
+      "metadata": {
+        "department": "Sales"
+      }
+    }
+  ]
+}
+```
+
+### Projects API v2
+
+#### Advanced Project Search
+
+```http
+GET /api/v2/projects/search
+```
+
+**Query Parameters:**
+- `q` (string): Search query
+- `tags[]` (array): Filter by tags
+- `status` (string): Project status
+- `created_after` (date): Filter by creation date
+
+#### Project Analytics (New)
+
+```http
+GET /api/v2/projects/{id}/analytics
+```
+
+**Response:**
+```json
+{
+  "project_id": "proj_789",
+  "analytics": {
+    "total_views": 1250,
+    "unique_visitors": 890,
+    "api_calls": 45230,
+    "last_30_days": {
+      "views": 320,
+      "api_calls": 12450
+    }
+  },
+  "performance_metrics": {
+    "average_response_time": 125,
+    "uptime_percentage": 99.98,
+    "error_rate": 0.02
+  }
+}
+```
+
+## Webhooks (New in v2.0)
+
+### Register Webhook
+
+```http
+POST /api/v2/webhooks
+```
+
+**Request Body:**
+```json
+{
+  "url": "https://your-app.com/webhooks/ourplatform",
+  "events": ["user.created", "project.updated", "payment.completed"],
+  "secret": "your_webhook_secret"
+}
+```
+
+### Webhook Events
+
+| Event | Description |
+|-------|-------------|
+| `user.created` | New user registration |
+| `user.updated` | User profile changes |
+| `project.created` | New project created |
+| `project.updated` | Project modifications |
+| `payment.completed` | Payment processed |
+
+## Rate Limiting v2.0
+
+Enhanced rate limiting with different tiers:
+
+| Plan | Requests/Hour | Burst Limit |
+|------|---------------|-------------|
+| Free | 1,000 | 50/minute |
+| Pro | 10,000 | 200/minute |
+| Enterprise | 100,000 | 1000/minute |
+
+## Error Handling
+
+### Error Response Format
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid request parameters",
+    "details": [
+      {
+        "field": "email",
+        "code": "INVALID_FORMAT",
+        "message": "Email format is invalid"
+      }
+    ],
+    "request_id": "req_abc123"
+  }
+}
+```
+
+### Status Codes
+
+| Code | Description | New in v2.0 |
+|------|-------------|-------------|
+| 200 | Success | |
+| 201 | Created | |
+| 204 | No Content | |
+| 400 | Bad Request | |
+| 401 | Unauthorized | |
+| 403 | Forbidden | |
+| 404 | Not Found | |
+| 409 | Conflict | ✓ |
+| 422 | Unprocessable Entity | ✓ |
+| 429 | Rate Limited | |
+| 500 | Server Error | |
+| 503 | Service Unavailable | ✓ |
+
+## SDK Support
+
+Enhanced SDKs with full v2.0 support:
+
+- **JavaScript/TypeScript**: Full type definitions, auto-completion
+- **Python**: Async/await support, type hints
+- **Go**: High-performance client with context support
+- **PHP**: PSR-compliant HTTP client
+- **Ruby**: Idiomatic Ruby patterns
+- **Java**: Spring Boot integration
+- **C#**: .NET Core compatible
+
+## Testing
+
+Use our interactive API explorer to test endpoints directly in the documentation, or try our [Testing Tools](/testing-tools) for automated testing. 

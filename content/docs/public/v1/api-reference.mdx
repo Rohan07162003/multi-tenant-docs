@@ -1,0 +1,131 @@
+---
+title: API Reference v1.0
+description: Complete API reference for our platform v1.0
+---
+
+# API Reference
+
+Welcome to our platform's API reference documentation. This covers version 1.0 of our REST API.
+
+## Base URL
+
+```
+https://api.ourplatform.com/v1
+```
+
+## Authentication
+
+All API requests must include an API key in the Authorization header:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+## Endpoints
+
+### Users
+
+#### Get All Users
+
+```http
+GET /api/users
+```
+
+**Response:**
+```json
+{
+  "users": [
+    {
+      "id": "123",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "limit": 20
+}
+```
+
+#### Get User by ID
+
+```http
+GET /api/users/{id}
+```
+
+**Parameters:**
+- `id` (string): User ID
+
+**Response:**
+```json
+{
+  "id": "123",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "created_at": "2024-01-01T00:00:00Z"
+}
+```
+
+#### Create User
+
+```http
+POST /api/users
+```
+
+**Request Body:**
+```json
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com"
+}
+```
+
+### Projects
+
+#### Get All Projects
+
+```http
+GET /api/projects
+```
+
+#### Create Project
+
+```http
+POST /api/projects
+```
+
+**Request Body:**
+```json
+{
+  "name": "My Project",
+  "description": "Project description"
+}
+```
+
+## Rate Limiting
+
+API requests are limited to:
+- 1000 requests per hour for authenticated users
+- 100 requests per hour for unauthenticated requests
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| 400  | Bad Request |
+| 401  | Unauthorized |
+| 403  | Forbidden |
+| 404  | Not Found |
+| 429  | Rate Limited |
+| 500  | Server Error |
+
+## SDK Support
+
+We provide official SDKs for:
+- JavaScript/Node.js
+- Python
+- PHP
+- Ruby
+
+See our [SDK Documentation](/sdk-docs) for more details. 
