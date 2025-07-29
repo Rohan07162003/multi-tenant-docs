@@ -1,0 +1,79 @@
+---
+title: JSONPlaceholder API Overview
+description: Free fake and reliable API for testing and prototyping
+---
+
+# JSONPlaceholder API Overview
+
+Welcome to the JSONPlaceholder API documentation! JSONPlaceholder is a free online REST API that you can use whenever you need some fake data. It's powered by JSON Server + LowDB and serves ~3 billion requests each month.
+
+## Base URL
+
+The API is available at: `https://jsonplaceholder.typicode.com`
+
+## Resources
+
+JSONPlaceholder comes with a set of 6 common resources:
+
+- **Posts** - 100 posts
+- **Comments** - 500 comments  
+- **Albums** - 100 albums
+- **Photos** - 5000 photos
+- **Todos** - 200 todos
+- **Users** - 10 users
+
+## Available Endpoints
+
+### Posts
+- **GET /posts** - Get all posts
+- **POST /posts** - Create a new post
+- **GET /posts/\{id\}** - Get post by ID
+- **PUT /posts/\{id\}** - Update post
+- **PATCH /posts/\{id\}** - Partially update post
+- **DELETE /posts/\{id\}** - Delete post
+- **GET /posts/\{id\}/comments** - Get comments for a post
+
+### Comments
+- **GET /comments** - Get all comments
+- **GET /comments?postId=\{id\}** - Get comments filtered by post ID
+
+### Users
+- **GET /users** - Get all users
+- **GET /users/\{id\}** - Get user by ID
+
+### Todos
+- **GET /todos** - Get all todos
+- **GET /todos/\{id\}** - Get todo by ID
+- **GET /todos?userId=\{id\}** - Get todos filtered by user ID
+
+### Albums
+- **GET /albums** - Get all albums
+- **GET /albums/\{id\}** - Get album by ID
+- **GET /albums?userId=\{id\}** - Get albums filtered by user ID
+
+### Photos
+- **GET /photos** - Get all photos
+- **GET /photos/\{id\}** - Get photo by ID
+- **GET /photos?albumId=\{id\}** - Get photos filtered by album ID
+
+## Authentication
+
+No authentication is required to use the JSONPlaceholder API.
+
+## Response Format
+
+All API responses are in JSON format. The API supports all HTTP methods (GET, POST, PUT, PATCH, DELETE).
+
+**Important Note**: POST, PUT, PATCH, and DELETE requests will not actually persist data on the server - they're faked for testing purposes.
+
+## Getting Started
+
+Try making your first request:
+
+```javascript
+fetch('https://jsonplaceholder.typicode.com/posts/1')
+  .then(response => response.json())
+  .then(json => console.log(json))
+```
+
+Browse the individual endpoint documentation to see detailed information about request/response schemas, parameters, and example requests. 

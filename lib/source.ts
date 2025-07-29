@@ -1,13 +1,18 @@
 import { docs } from '@/.source';
 import { loader } from 'fumadocs-core/source';
-import { createOpenAPI } from 'fumadocs-openapi/server';
+import { createOpenAPI,attachFile } from 'fumadocs-openapi/server';
+import { notFound } from 'next/navigation';
 
 // Create the main source
 export const source = loader({
   baseUrl: '/docs',
   source: docs.toFumadocsSource(),
+  pageTree: {
+    attachFile,
+  },
 });
 
+// Create OpenAPI instance with proper configuration
 export const openapi = createOpenAPI();
 
 export function getClientVersions(clientFolder: string): string[] {
@@ -45,6 +50,13 @@ export function getLatestVersion(clientFolder: string): string | undefined {
   return versions[versions.length - 1];
 }
 
+export function isValidClientFolder(clientFolder: string): boolean {
+  if (!clientFolder) return false;
+  const allPages = source.getPages();
+  // Check if any page starts with /clientFolder/
+  return allPages.some(page => page.url.startsWith(`/${clientFolder}/`));
+}
+
 // Export function to get client-specific pages with version support
 export function getClientPages(clientFolder?: string, version?: string) {
   const allPages = source.getPages();
@@ -58,11 +70,19 @@ export function getClientPages(clientFolder?: string, version?: string) {
   if (!versionPath) return [];
   const fullPath = `/${clientFolder}/${versionPath}`;
   
-  return allPages.filter(page => {
-    return page.url.startsWith(`${fullPath}/`);
-  }).map(page => ({
+  console.log('getClientPages - clientFolder:', clientFolder, 'version:', version, 'fullPath:', fullPath);
+  
+  const filteredPages = allPages.filter(page => {
+    return page.url.startsWith(`${fullPath}/`) || page.url === fullPath;
+  });
+  
+  console.log('Filtered pages:', filteredPages.map(p => p.url));
+  
+  return filteredPages.map(page => ({
     ...page,
-    url: page.url.replace(`${fullPath}`, '') || '/',
+    // Transform URL for path-based versioning
+    // e.g., /docs/techflow-solutions/v1/page -> /docs/v1/page
+    url: page.url.replace(`/docs${fullPath}`, `/docs/${versionPath}`) || `/docs/${versionPath}`,
   }));
 }
 
@@ -79,13 +99,16 @@ export function getClientPage(slug: string[], clientFolder?: string, version?: s
   const versionPath = version || getLatestVersion(clientFolder);
   if (!versionPath) return null;
   const fullSlug = [clientFolder, versionPath, ...slug];
+  console.log('getClientPage - fullSlug:', fullSlug);
   const page = source.getPage(fullSlug);
   
   if (page) {
+    console.log('Found page with URL:', page.url);
     return {
       ...page,
-      // Remove client folder and version from URL
-      url: page.url.replace(`/${clientFolder}/${versionPath}`, '') || '/',
+      // Transform URL for path-based versioning
+      // e.g., /docs/techflow-solutions/v1/page -> /docs/v1/page
+      url: page.url.replace(`/docs/${clientFolder}/${versionPath}`, `/docs/${versionPath}`) || `/docs/${versionPath}`,
     };
   }
   
@@ -94,11 +117,12 @@ export function getClientPage(slug: string[], clientFolder?: string, version?: s
 
 // Export function to get client-specific page tree with version support
 export function getClientPageTree(clientFolder?: string, version?: string) {
+  console.log('getClientPageTree - clientFolder:', clientFolder, 'version:', version);
   if (!clientFolder) {
     console.log('source.pageTree', source.pageTree);
+    notFound();
     return source.pageTree;
   }
-
   // Use the single source of truth for latest version
   const versionPath = version || getLatestVersion(clientFolder);
   if (!versionPath) return { name: 'Docs', children: [] };
@@ -123,17 +147,18 @@ export function getClientPageTree(clientFolder?: string, version?: string) {
   }
   
   // Split the path and find the corresponding node
-  const pathParts = targetPath.split('/').filter(Boolean); // ['acme-corp', 'v1']
+  const pathParts = targetPath.split('/').filter(Boolean); // ['techflow-solutions', 'v1']
   const clientNode = findClientNode(source.pageTree, pathParts);
   
   if (clientNode) {
     // Create a new tree with the client's content as root
-    // Transform the URLs to remove the client folder and version prefix
+    // Transform the URLs for path-based versioning
     function transformNode(node: any): any {
       const transformed = { ...node };
       
       if (node.url) {
-        transformed.url = node.url.replace(targetPath, '') || '/';
+        // Transform URL: /docs/techflow-solutions/v1/page -> /docs/v1/page
+        transformed.url = node.url.replace(`/docs${targetPath}`, `/docs/${versionPath}`) || `/docs/${versionPath}`;
       }
       
       if (node.children) {

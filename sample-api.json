@@ -1,0 +1,820 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "JSONPlaceholder API",
+      "description": "Free fake and reliable API for testing and prototyping. Serving ~3 billion requests each month.",
+      "version": "1.0.0",
+      "contact": {
+        "name": "JSONPlaceholder",
+        "url": "https://jsonplaceholder.typicode.com"
+      }
+    },
+    "servers": [
+      {
+        "url": "https://jsonplaceholder.typicode.com",
+        "description": "JSONPlaceholder server"
+      }
+    ],
+    "paths": {
+      "/posts": {
+        "get": {
+          "summary": "Get all posts",
+          "description": "Retrieve all posts from the JSONPlaceholder API",
+          "tags": ["Posts"],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Post"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Create a new post",
+          "description": "Create a new post (will not be persisted)",
+          "tags": ["Posts"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePostRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Post created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/posts/{id}": {
+        "get": {
+          "summary": "Get post by ID",
+          "description": "Retrieve a specific post by its ID",
+          "tags": ["Posts"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "description": "Post ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Post not found"
+            }
+          }
+        },
+        "put": {
+          "summary": "Update post",
+          "description": "Update an existing post (will not be persisted)",
+          "tags": ["Posts"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "description": "Post ID"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePostRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Post updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "summary": "Partially update post",
+          "description": "Partially update an existing post (will not be persisted)",
+          "tags": ["Posts"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "description": "Post ID"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchPostRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Post updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete post",
+          "description": "Delete a post (will not be persisted)",
+          "tags": ["Posts"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "description": "Post ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Post deleted successfully"
+            }
+          }
+        }
+      },
+      "/posts/{id}/comments": {
+        "get": {
+          "summary": "Get comments for a post",
+          "description": "Retrieve all comments for a specific post",
+          "tags": ["Posts", "Comments"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "description": "Post ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Comment"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/comments": {
+        "get": {
+          "summary": "Get all comments",
+          "description": "Retrieve all comments, optionally filtered by post ID",
+          "tags": ["Comments"],
+          "parameters": [
+            {
+              "name": "postId",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "description": "Filter comments by post ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Comment"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users": {
+        "get": {
+          "summary": "Get all users",
+          "description": "Retrieve all users from the JSONPlaceholder API",
+          "tags": ["Users"],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+                "description": "Unauthorized - Authentication required",
+                "content": {
+                  "application/json": {
+                    
+                  }
+                }
+              },
+            "404":{
+                "description": "Users not found"
+            }
+          }
+        }
+      },
+      "/users/{id}": {
+        "get": {
+          "summary": "Get user by ID",
+          "description": "Retrieve a specific user by their ID",
+          "tags": ["Users"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+              },
+              "description": "User ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      },
+      "/todos": {
+        "get": {
+          "summary": "Get all todos",
+          "description": "Retrieve all todos, optionally filtered by user ID",
+          "tags": ["Todos"],
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+              },
+              "description": "Filter todos by user ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Todo"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/todos/{id}": {
+        "get": {
+          "summary": "Get todo by ID",
+          "description": "Retrieve a specific todo by its ID",
+          "tags": ["Todos"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 200
+              },
+              "description": "Todo ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Todo"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Todo not found"
+            }
+          }
+        }
+      },
+      "/albums": {
+        "get": {
+          "summary": "Get all albums",
+          "description": "Retrieve all albums, optionally filtered by user ID",
+          "tags": ["Albums"],
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+              },
+              "description": "Filter albums by user ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Album"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/albums/{id}": {
+        "get": {
+          "summary": "Get album by ID",
+          "description": "Retrieve a specific album by its ID",
+          "tags": ["Albums"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "description": "Album ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Album"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Album not found"
+            }
+          }
+        }
+      },
+      "/photos": {
+        "get": {
+          "summary": "Get all photos",
+          "description": "Retrieve all photos, optionally filtered by album ID",
+          "tags": ["Photos"],
+          "parameters": [
+            {
+              "name": "albumId",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "description": "Filter photos by album ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Photo"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/photos/{id}": {
+        "get": {
+          "summary": "Get photo by ID",
+          "description": "Retrieve a specific photo by its ID",
+          "tags": ["Photos"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5000
+              },
+              "description": "Photo ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Photo"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Photo not found"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Post": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "Post ID"
+            },
+            "userId": {
+              "type": "integer",
+              "description": "ID of the user who created the post"
+            },
+            "title": {
+              "type": "string",
+              "description": "Post title"
+            },
+            "body": {
+              "type": "string",
+              "description": "Post content"
+            }
+          },
+          "required": ["id", "userId", "title", "body"]
+        },
+        "CreatePostRequest": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "integer",
+              "description": "ID of the user creating the post"
+            },
+            "title": {
+              "type": "string",
+              "description": "Post title"
+            },
+            "body": {
+              "type": "string",
+              "description": "Post content"
+            }
+          },
+          "required": ["userId", "title", "body"]
+        },
+        "UpdatePostRequest": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "Post ID"
+            },
+            "userId": {
+              "type": "integer",
+              "description": "ID of the user who created the post"
+            },
+            "title": {
+              "type": "string",
+              "description": "Post title"
+            },
+            "body": {
+              "type": "string",
+              "description": "Post content"
+            }
+          },
+          "required": ["id", "userId", "title", "body"]
+        },
+        "PatchPostRequest": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "integer",
+              "description": "ID of the user who created the post"
+            },
+            "title": {
+              "type": "string",
+              "description": "Post title"
+            },
+            "body": {
+              "type": "string",
+              "description": "Post content"
+            }
+          }
+        },
+        "Comment": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "Comment ID"
+            },
+            "postId": {
+              "type": "integer",
+              "description": "ID of the post this comment belongs to"
+            },
+            "name": {
+              "type": "string",
+              "description": "Comment title/name"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "Email of the commenter"
+            },
+            "body": {
+              "type": "string",
+              "description": "Comment content"
+            }
+          },
+          "required": ["id", "postId", "name", "email", "body"]
+        },
+        "User": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "User ID"
+            },
+            "name": {
+              "type": "string",
+              "description": "User's full name"
+            },
+            "username": {
+              "type": "string",
+              "description": "Username"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "User's email address"
+            },
+            "address": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "phone": {
+              "type": "string",
+              "description": "Phone number"
+            },
+            "website": {
+              "type": "string",
+              "description": "Website URL"
+            },
+            "company": {
+              "$ref": "#/components/schemas/Company"
+            }
+          },
+          "required": ["id", "name", "username", "email"]
+        },
+        "Address": {
+          "type": "object",
+          "properties": {
+            "street": {
+              "type": "string",
+              "description": "Street address"
+            },
+            "suite": {
+              "type": "string",
+              "description": "Suite/apartment number"
+            },
+            "city": {
+              "type": "string",
+              "description": "City"
+            },
+            "zipcode": {
+              "type": "string",
+              "description": "ZIP code"
+            },
+            "geo": {
+              "$ref": "#/components/schemas/Geo"
+            }
+          }
+        },
+        "Geo": {
+          "type": "object",
+          "properties": {
+            "lat": {
+              "type": "string",
+              "description": "Latitude"
+            },
+            "lng": {
+              "type": "string",
+              "description": "Longitude"
+            }
+          }
+        },
+        "Company": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Company name"
+            },
+            "catchPhrase": {
+              "type": "string",
+              "description": "Company catchphrase"
+            },
+            "bs": {
+              "type": "string",
+              "description": "Company business"
+            }
+          }
+        },
+        "Todo": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "Todo ID"
+            },
+            "userId": {
+              "type": "integer",
+              "description": "ID of the user who owns this todo"
+            },
+            "title": {
+              "type": "string",
+              "description": "Todo title"
+            },
+            "completed": {
+              "type": "boolean",
+              "description": "Whether the todo is completed"
+            }
+          },
+          "required": ["id", "userId", "title", "completed"]
+        },
+        "Album": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "Album ID"
+            },
+            "userId": {
+              "type": "integer",
+              "description": "ID of the user who owns this album"
+            },
+            "title": {
+              "type": "string",
+              "description": "Album title"
+            }
+          },
+          "required": ["id", "userId", "title"]
+        },
+        "Photo": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "Photo ID"
+            },
+            "albumId": {
+              "type": "integer",
+              "description": "ID of the album this photo belongs to"
+            },
+            "title": {
+              "type": "string",
+              "description": "Photo title"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Photo URL"
+            },
+            "thumbnailUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "Thumbnail URL"
+            }
+          },
+          "required": ["id", "albumId", "title", "url", "thumbnailUrl"]
+        }
+      }
+    }
+  } 

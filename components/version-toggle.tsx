@@ -27,33 +27,21 @@ export function VersionToggle({ clientFolder, currentVersion, availableVersions 
     const port = window.location.port;
     const protocol = window.location.protocol;
     
+    // Build the new URL with path-based versioning
     let newHostname: string;
     
     if (hostname.includes('.localhost')) {
       // Local development
-      if (version === latestVersion) {
-        // Latest version - no version in subdomain
-        newHostname = `${clientFolder}.docs.localhost`;
-      } else {
-        // Specific version
-        newHostname = `${clientFolder}.${version}.docs.localhost`;
-      }
+      newHostname = `${clientFolder}.docs.localhost`;
     } else {
       // Production domain
       const parts = hostname.split('.');
       const domainSuffix = parts.slice(-2).join('.'); // domain.com
-      
-      if (version === latestVersion) {
-        // Latest version - no version in subdomain
-        newHostname = `${clientFolder}.docs.${domainSuffix}`;
-      } else {
-        // Specific version
-        newHostname = `${clientFolder}.${version}.docs.${domainSuffix}`;
-      }
+      newHostname = `${clientFolder}.docs.${domainSuffix}`;
     }
     
-    // Always go to the index page of the docs for the selected version
-    const newUrl = `${protocol}//${newHostname}${port ? `:${port}` : ''}/docs/`;
+    // Path-based versioning: /docs/v1, /docs/v2, etc.
+    const newUrl = `${protocol}//${newHostname}${port ? `:${port}` : ''}/docs/${version}/`;
     window.location.href = newUrl;
   };
 
