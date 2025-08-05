@@ -9,28 +9,18 @@ import { notFound } from 'next/navigation';
 async function getClientContext(): Promise<{ clientFolder?: string; version?: string }> {
   try {
     const headersList = await headers();
-    console.log('=== LAYOUT HEADERS DEBUG ===');
-    console.log('All headers:', Object.fromEntries(headersList.entries()));
     const clientFolder = headersList.get('x-client-folder') || undefined;
     const version = headersList.get('x-client-version') || undefined;
-    console.log('Extracted clientFolder:', clientFolder);
-    console.log('Extracted version:', version);
-    console.log('=== END LAYOUT HEADERS ===');
     return { clientFolder, version };
-  } catch (error) {
-    console.log('Error getting headers:', error);
+  } catch {
     return {};
   }
 }
 
 export default async function Layout({ children }: { children: ReactNode }) {
   const { clientFolder, version } = await getClientContext();
-  console.log('clientFolder', clientFolder);
-  console.log('version', version);
   const pageTree = getClientPageTree(clientFolder, version);
-  const hardcodetree=getClientPageTree('acme-corp', 'v2')
-  console.log('getClientPageTree', hardcodetree)
-  console.log('pageTree', pageTree);
+  
   // if (clientFolder && !isValidClientFolder(clientFolder)) {
   //   notFound(); // This will render the 404 page
   // }

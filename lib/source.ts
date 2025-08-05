@@ -31,7 +31,6 @@ export function getClientVersions(clientFolder: string): string[] {
       versions.add(match[1]);
     }
   }
-  console.log('versions', versions);
   return Array.from(versions).sort((a, b) => {
     const numA = parseInt(a.slice(1)); // remove "v" from "v3"
     const numB = parseInt(b.slice(1));
@@ -70,13 +69,9 @@ export function getClientPages(clientFolder?: string, version?: string) {
   if (!versionPath) return [];
   const fullPath = `/${clientFolder}/${versionPath}`;
   
-  console.log('getClientPages - clientFolder:', clientFolder, 'version:', version, 'fullPath:', fullPath);
-  
   const filteredPages = allPages.filter(page => {
     return page.url.startsWith(`${fullPath}/`) || page.url === fullPath;
   });
-  
-  console.log('Filtered pages:', filteredPages.map(p => p.url));
   
   return filteredPages.map(page => ({
     ...page,
@@ -99,11 +94,9 @@ export function getClientPage(slug: string[], clientFolder?: string, version?: s
   const versionPath = version || getLatestVersion(clientFolder);
   if (!versionPath) return null;
   const fullSlug = [clientFolder, versionPath, ...slug];
-  console.log('getClientPage - fullSlug:', fullSlug);
   const page = source.getPage(fullSlug);
   
   if (page) {
-    console.log('Found page with URL:', page.url);
     return {
       ...page,
       // Transform URL for path-based versioning
@@ -117,9 +110,7 @@ export function getClientPage(slug: string[], clientFolder?: string, version?: s
 
 // Export function to get client-specific page tree with version support
 export function getClientPageTree(clientFolder?: string, version?: string) {
-  console.log('getClientPageTree - clientFolder:', clientFolder, 'version:', version);
   if (!clientFolder) {
-    console.log('source.pageTree', source.pageTree);
     notFound();
     return source.pageTree;
   }

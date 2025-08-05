@@ -291,14 +291,6 @@
                 }
               }
             },
-            "401": {
-                "description": "Unauthorized - Authentication required",
-                "content": {
-                  "application/json": {
-                    
-                  }
-                }
-              },
             "404":{
                 "description": "Users not found"
             }
