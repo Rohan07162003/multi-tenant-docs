@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "openapi-demo",
-    "supplier-portal"
+    "supplier-portal",
+    "inventory-tracking"
   ]
 } 
